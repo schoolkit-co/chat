@@ -56,15 +56,22 @@ function AuthLayout({
     return null;
   };
 
+  const imgContainer = "flex justify-center mt-6 w-full bg-cover"; // Custom Style
+  const imgClass = "h-full w-full object-contain max-w-[220px]"; // Custom Style
+
   return (
     <div className="relative flex min-h-screen flex-col bg-white dark:bg-gray-900">
       <Banner />
       <BlinkAnimation active={isFetching}>
-        <div className="mt-6 h-10 w-full bg-cover">
+        {/* <div className="mt-6 h-10 w-full bg-cover"> */}
+        <div className={imgContainer}>
           <img
-            src="/assets/logo.svg"
-            className="h-full w-full object-contain"
-            alt={localize('com_ui_logo', { 0: startupConfig?.appTitle ?? 'LibreChat' })}
+            // src="/assets/logo.svg"
+            // className="h-full w-full object-contain"
+            // alt={localize('com_ui_logo', { 0: startupConfig?.appTitle ?? 'LibreChat' })}
+            src="/assets/schoolkit.png"
+            className={imgClass}
+            alt="SchoolKit"
           />
         </div>
       </BlinkAnimation>

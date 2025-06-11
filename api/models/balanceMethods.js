@@ -4,6 +4,7 @@ const { createAutoRefillTransaction } = require('./Transaction');
 const { logViolation } = require('~/cache');
 const { getMultiplier } = require('./tx');
 const { Balance } = require('~/db/models');
+const { checkRefillPermission, checkSchoolPremiumMonthlyCredits } = require('~/custom/models/balanceUtil');
 
 function isInvalidDate(date) {
   return isNaN(date);
@@ -50,7 +51,8 @@ const checkBalanceRecord = async function ({
   });
 
   // Only perform auto-refill if spending would bring the balance to 0 or below
-  if (balance - tokenCost <= 0 && record.autoRefillEnabled && record.refillAmount > 0) {
+  // if (balance - tokenCost <= 0 && record.autoRefillEnabled && record.refillAmount > 0) {
+  if (record.autoRefillEnabled && record.refillAmount > 0) {
     const lastRefillDate = new Date(record.lastRefill);
     const now = new Date();
     if (
@@ -72,6 +74,8 @@ const checkBalanceRecord = async function ({
       }
     }
   }
+
+  balance = await checkSchoolPremiumMonthlyCredits(user, balance);
 
   logger.debug('[Balance.check] Token cost', { tokenCost });
   return { canSpend: balance >= tokenCost, balance, tokenCost };
@@ -153,4 +157,5 @@ const checkBalance = async ({ req, res, txData }) => {
 
 module.exports = {
   checkBalance,
+  checkBalanceRecord,
 };

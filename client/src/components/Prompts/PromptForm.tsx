@@ -32,6 +32,7 @@ import SharePrompt from './SharePrompt';
 import PromptName from './PromptName';
 import Command from './Command';
 import store from '~/store';
+import ShareSchoolPrompt from '../../custom/components/Prompts/ShareSchoolPrompt';
 
 const PromptForm = () => {
   const params = useParams();
@@ -240,6 +241,7 @@ const PromptForm = () => {
         />
         <div className="mt-2 flex flex-row items-center justify-center gap-x-2 lg:mt-0">
           {hasShareAccess && <SharePrompt group={group} disabled={isLoadingGroup} />}
+          <ShareSchoolPrompt group={group} disabled={isLoadingGroup} />
           {editorMode === PromptsEditorMode.ADVANCED && (
             <Button
               variant="submit"

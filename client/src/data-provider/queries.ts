@@ -31,6 +31,7 @@ import type {
 } from 'librechat-data-provider';
 import type { ConversationCursorData } from '~/utils/convos';
 import { findConversationInInfinite } from '~/utils';
+import axios from 'axios';
 
 export const useGetPresetsQuery = (
   config?: UseQueryOptions<TPreset[]>,
@@ -523,6 +524,27 @@ export const useGetRandomPrompts = (
       retry: false,
       ...config,
       enabled: config?.enabled !== undefined ? config.enabled : true,
+    },
+  );
+};
+
+export const useGetRecentPrompts = (
+  config?: UseQueryOptions<string[]>,
+): QueryObserverResult<string[]> => {
+  return useQuery<string[]>(
+    ['recentPrompts'],
+    async () => {
+      const response = await axios.get('/api/prompts/recent', {
+        withCredentials: true,
+      });
+      return response.data;
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
+      retry: false,
+      ...config,
     },
   );
 };

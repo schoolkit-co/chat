@@ -47,6 +47,11 @@ const getEndpointFromLocalStorage = (endpointsConfig: TEndpointsConfig) => {
 };
 
 const getDefinedEndpoint = (endpointsConfig: TEndpointsConfig) => {
+  // Check if Google endpoint is available
+  if (Object.hasOwn(endpointsConfig ?? {}, 'google')) {
+    return 'google' as EModelEndpoint;
+  }
+  // Fallback to the original logic if Google is not available
   const endpoints = mapEndpoints(endpointsConfig);
   return endpoints.find((e) => Object.hasOwn(endpointsConfig ?? {}, e));
 };

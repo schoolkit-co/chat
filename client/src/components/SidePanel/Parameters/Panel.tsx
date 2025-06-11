@@ -15,6 +15,7 @@ import { getEndpointField, logger } from '~/utils';
 import { componentMapping } from './components';
 import { useChatContext } from '~/Providers';
 import keyBy from 'lodash/keyBy';
+import axios from 'axios';
 
 export default function Parameters() {
   const localize = useLocalize();
@@ -23,6 +24,7 @@ export default function Parameters() {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [preset, setPreset] = useState<TPreset | null>(null);
+  const [defaultMaxContextTokens, setDefaultMaxContextTokens] = useState<number | ''>('');
 
   const { data: endpointsConfig = {} } = useGetEndpointsQuery();
   const provider = conversation?.endpoint ?? '';
@@ -48,6 +50,18 @@ export default function Parameters() {
       (param) => (overriddenParamsMap[param.key] as SettingDefinition) ?? param,
     );
   }, [endpointType, endpointsConfig, model, provider]);
+
+  // Fetch maxContextTokens from API when component mounts
+  useEffect(() => {
+    (async function() {
+      try {
+        const response = await axios.get('/api/custom-presets/max-context');
+        setDefaultMaxContextTokens(response.data?.maxContextTokens ? Number(response.data.maxContextTokens) : '');
+      } catch (error) {
+        logger.error('Failed to fetch maxContextTokens:', error);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     if (!parameters) {
@@ -115,6 +129,13 @@ export default function Parameters() {
           return;
         }
 
+        // ถ้าเป็น maxContextTokens และมีค่า defaultMaxContextTokens ให้ใช้ค่า defaultMaxContextTokens แทนค่าว่าง
+        if (key === 'maxContextTokens' && defaultMaxContextTokens) {
+          resetKeys.push(key);
+          updatedConversation[key] = Number(defaultMaxContextTokens);
+          return;
+        }
+
         if (updatedConversation[key] !== undefined) {
           resetKeys.push(key);
           delete updatedConversation[key];
@@ -124,7 +145,7 @@ export default function Parameters() {
       logger.log('parameters', 'parameters reset, affected keys:', resetKeys);
       return updatedConversation;
     });
-  }, [setConversation]);
+  }, [setConversation, defaultMaxContextTokens]);
 
   const openDialog = useCallback(() => {
     const newPreset = tConvoUpdateSchema.parse({
@@ -153,6 +174,33 @@ export default function Parameters() {
 
           if (key === 'region' && bedrockRegions.length) {
             rest.options = bedrockRegions;
+          }
+
+          // ถ้าเป็น maxContextTokens และมี defaultMaxContextTokens ให้ใช้เป็นค่าเริ่มต้น
+          if (key === 'maxContextTokens' && !conversation?.[key] && defaultMaxContextTokens) {
+            rest.placeholder = defaultMaxContextTokens;
+            
+            // ใช้ setOption เพื่อตั้งค่า defaultMaxContextTokens เมื่อ Input field ว่างเปล่า
+            const originalSetOption = setOption;
+            const wrappedSetOption = (settingKey: string) => {
+              return (value: any) => {
+                if ((value === null || value === undefined || value === '') && settingKey === 'maxContextTokens' && defaultMaxContextTokens) {
+                  return originalSetOption(settingKey)(String(defaultMaxContextTokens));
+                }
+                return originalSetOption(settingKey)(value);
+              };
+            };
+            
+            return (
+              <Component
+                key={key}
+                settingKey={key}
+                defaultValue={defaultValue}
+                {...rest}
+                setOption={wrappedSetOption}
+                conversation={conversation}
+              />
+            );
           }
 
           return (

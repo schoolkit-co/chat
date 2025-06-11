@@ -16,6 +16,7 @@ const {
 } = require('~/models/Prompt');
 const { requireJwtAuth, generateCheckAccess } = require('~/server/middleware');
 const { logger } = require('~/config');
+const { checkSchoolPromptShare, patchPromptGroupSchool } = require('~/custom/controllers/schooladmin');
 
 const router = express.Router();
 
@@ -160,7 +161,8 @@ const patchPromptGroup = async (req, res) => {
   }
 };
 
-router.patch('/groups/:groupId', checkGlobalPromptShare, patchPromptGroup);
+router.patch('/groups/:groupId', checkGlobalPromptShare, checkSchoolPromptShare, patchPromptGroup);
+router.patch('/groups/:groupId/school', checkSchoolPromptShare, patchPromptGroupSchool);
 
 router.patch('/:promptId/tags/production', checkPromptCreate, async (req, res) => {
   try {

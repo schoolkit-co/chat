@@ -23,6 +23,7 @@ const { processDeleteRequest } = require('~/server/services/Files/process');
 const { Transaction, Balance, User } = require('~/db/models');
 const { deleteAllSharedLinks } = require('~/models/Share');
 const { deleteToolCalls } = require('~/models/ToolCall');
+const { checkUsagePermission } = require('~/custom/models/balanceUtil');
 
 const getUserController = async (req, res) => {
   /** @type {MongoUser} */
@@ -41,6 +42,18 @@ const getUserController = async (req, res) => {
       userData.avatar = originalAvatar;
       logger.error('Error getting new S3 URL for avatar:', error);
     }
+  }
+  try {
+    const userFromDB = await User.findById(req.user.id).lean();
+    if (!userFromDB) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    userData.schoolAdmin = userFromDB.schoolAdmin;
+    delete userData.password;
+    delete userData.__v;
+  } catch (error) {
+    logger.error('Error fetching user data:', error);
+    res.status(500).json({ message: 'Error fetching user data' });
   }
   res.status(200).send(userData);
 };
@@ -211,6 +224,28 @@ const resendVerificationController = async (req, res) => {
   }
 };
 
+/**
+ * Check user's usage permission
+ * @route GET /api/user/permission
+ */
+const checkUsagePermissionController = async (req, res) => {
+  try {
+    const { user } = req;
+    
+    // If user is admin, always return enable: true
+    if (user.role === 'ADMIN') {
+      return res.status(200).json({ enable: true });
+    }
+
+    // For all other users, check usage permission
+    const permissionStatus = await checkUsagePermission(user._id);
+    return res.status(200).json(permissionStatus);
+  } catch (error) {
+    console.error('Error checking usage permission:', error);
+    return res.status(500).json({ enable: false, error: 'Failed to check usage permission' });
+  }
+};
+
 module.exports = {
   getUserController,
   getTermsStatusController,
@@ -219,4 +254,5 @@ module.exports = {
   verifyEmailController,
   updateUserPluginsController,
   resendVerificationController,
+  checkUsagePermissionController,
 };

@@ -359,6 +359,7 @@ export type TRegisterUser = {
   password: string;
   confirm_password?: string;
   token?: string;
+  school: number;
 };
 
 export type TLoginUser = {
@@ -488,6 +489,7 @@ export type TPromptGroup = {
   productionPrompt?: Pick<TPrompt, 'prompt'> | null;
   author: string;
   authorName: string;
+  schoolId?: number | null;
   createdAt?: Date;
   updatedAt?: Date;
   _id?: string;
@@ -534,11 +536,14 @@ export type TCreatePromptResponse = {
 
 export type TUpdatePromptGroupPayload = Partial<TPromptGroup> & {
   removeProjectIds?: string[];
+  schoolShare?: boolean;
+  removeSchoolShare?: boolean;
 };
 
 export type TUpdatePromptGroupVariables = {
   id: string;
   payload: TUpdatePromptGroupPayload;
+  endpoint?: string;
 };
 
 export type TUpdatePromptGroupResponse = TPromptGroup;

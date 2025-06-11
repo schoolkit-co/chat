@@ -105,6 +105,18 @@ const userSchema = new Schema<IUser>(
       unique: true,
       sparse: true,
     },
+    school: {
+      type: Number,
+      required: false,
+    },
+    schoolAdmin: {
+      type: Boolean,
+      default: false,
+    },
+    superCredit: {
+      type: Boolean,
+      default: false,
+    },
     plugins: {
       type: Array,
     },

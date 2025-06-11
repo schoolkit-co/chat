@@ -7,6 +7,7 @@ import { ResizableHandleAlt, ResizablePanel, ResizablePanelGroup } from '~/compo
 import { useGetStartupConfig } from '~/data-provider';
 import { normalizeLayout } from '~/utils';
 import { useMediaQuery } from '~/hooks';
+import { usePanelCollapse } from '~/custom/components/SidePanel/SidePanelGroupUtil';
 import SidePanel from './SidePanel';
 import store from '~/store';
 
@@ -69,21 +70,36 @@ const SidePanelGroup = ({
     [],
   );
 
-  useEffect(() => {
-    if (isSmallScreen) {
-      setIsCollapsed(true);
-      setCollapsedSize(0);
-      setMinSize(defaultMinSize);
-      setFullCollapse(true);
-      localStorage.setItem('fullPanelCollapse', 'true');
-      panelRef.current?.collapse();
-      return;
-    } else {
-      setIsCollapsed(defaultCollapsed);
-      setCollapsedSize(navCollapsedSize);
-      setMinSize(defaultMinSize);
-    }
-  }, [isSmallScreen, defaultCollapsed, navCollapsedSize, fullPanelCollapse]);
+  //Old code to handle the side panel collapse
+  // useEffect(() => {
+  //   if (isSmallScreen) {
+  //     setIsCollapsed(true);
+  //     setCollapsedSize(0);
+  //     setMinSize(defaultMinSize);
+  //     setFullCollapse(true);
+  //     localStorage.setItem('fullPanelCollapse', 'true');
+  //     panelRef.current?.collapse();
+  //     return;
+  //   } else {
+  //     setIsCollapsed(defaultCollapsed);
+  //     setCollapsedSize(navCollapsedSize);
+  //     setMinSize(defaultMinSize);
+  //   }
+  // }, [isSmallScreen, defaultCollapsed, navCollapsedSize, fullPanelCollapse]);
+  
+  //Custom hook to handle the side panel collapse
+  usePanelCollapse({
+    isSmallScreen,
+    defaultCollapsed,
+    navCollapsedSize,
+    defaultMinSize,
+    fullPanelCollapse,
+    setIsCollapsed,
+    setCollapsedSize,
+    setMinSize,
+    setFullCollapse,
+    panelRef,
+  });
 
   const minSizeMain = useMemo(() => (artifacts != null ? 15 : 30), [artifacts]);
 

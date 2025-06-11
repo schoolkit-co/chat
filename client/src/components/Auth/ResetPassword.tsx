@@ -6,6 +6,7 @@ import type { TResetPassword } from 'librechat-data-provider';
 import type { TLoginLayoutContext } from '~/common';
 import { Spinner, Button } from '~/components';
 import { useLocalize } from '~/hooks';
+import PasswordInput from '~/custom/components/Auth/PasswordInput';
 
 function ResetPassword() {
   const localize = useLocalize();
@@ -14,12 +15,17 @@ function ResetPassword() {
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<TResetPassword>();
+  } = useForm<TResetPassword>({
+    mode: 'onChange',
+    criteriaMode: 'all',
+    reValidateMode: 'onChange'
+  });
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const password = watch('password');
   const resetPassword = useResetPasswordMutation();
   const { setError, setHeaderText } = useOutletContext<TLoginLayoutContext>();
+  const confirm_password = watch('confirm_password');
 
   const onSubmit = (data: TResetPassword) => {
     resetPassword.mutate(data, {
@@ -75,7 +81,7 @@ function ResetPassword() {
             value={params.get('userId') ?? ''}
             {...register('userId', { required: 'Unable to process: No valid user id' })}
           />
-          <input
+          {/* <input
             type="password"
             id="password"
             autoComplete="current-password"
@@ -94,13 +100,31 @@ function ResetPassword() {
             aria-invalid={!!errors.password}
             className="webkit-dark-styles transition-color peer w-full rounded-2xl border border-border-light bg-surface-primary px-3.5 pb-2.5 pt-3 text-text-primary duration-200 focus:border-green-500 focus:outline-none"
             placeholder=" "
+          /> */}
+          <PasswordInput
+            id="password"
+            label={localize('com_auth_password')}
+            register={register}
+            errors={errors}
+            autoComplete="new-password"
+            validation={{
+              required: localize('com_auth_password_required'),
+              minLength: {
+                value: 8,
+                message: localize('com_auth_password_min_length'),
+              },
+              maxLength: {
+                value: 128,
+                message: localize('com_auth_password_max_length'),
+              },
+            }}
           />
-          <label
+          {/* <label
             htmlFor="password"
             className="absolute start-3 top-1.5 z-10 origin-[0] -translate-y-4 scale-75 transform bg-surface-primary px-2 text-sm text-text-secondary-alt duration-200 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-1.5 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2 peer-focus:text-green-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4"
           >
             {localize('com_auth_password')}
-          </label>
+          </label> */}
         </div>
 
         {errors.password && (
@@ -110,7 +134,7 @@ function ResetPassword() {
         )}
       </div>
       <div className="mb-2">
-        <div className="relative">
+        {/* <div className="relative">
           <input
             type="password"
             id="confirm_password"
@@ -128,7 +152,22 @@ function ResetPassword() {
           >
             {localize('com_auth_password_confirm')}
           </label>
-        </div>
+        </div> */}
+        <PasswordInput
+          id="confirm_password"
+          label={localize('com_auth_password_confirm')}
+          register={register}
+          errors={errors}
+          autoComplete="new-password"
+          validation={{
+            validate: (value) => value === password || true
+          }}
+        />
+        {confirm_password && password !== confirm_password && (
+          <span className="mt-1 text-sm text-red-500 dark:text-red-900" role="alert">
+            {localize('com_auth_password_not_match')}
+          </span>
+        )}
         {errors.confirm_password && (
           <span role="alert" className="mt-1 text-sm text-red-500 dark:text-red-900">
             {errors.confirm_password.message}

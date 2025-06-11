@@ -5,6 +5,7 @@ import replace from '@rollup/plugin-replace';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
+import json from '@rollup/plugin-json';   // fix build 1
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
@@ -14,6 +15,7 @@ const plugins = [
   resolve({
     preferBuiltins: true,
   }),
+  json(),   // fix build 1
   replace({
     __IS_DEV__: process.env.NODE_ENV === 'development',
     preventAssignment: true,

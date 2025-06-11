@@ -1,4 +1,6 @@
 {
+  "com_auth_school": "სკოლა",
+  "com_auth_school_required": "სკოლა სავალდებულოა",
   "com_nav_lang_arabic": "العربية",
   "com_nav_lang_auto": "ავტომატური ამოცნობა",
   "com_nav_lang_brazilian_portuguese": "Português Brasileiro",
@@ -24,5 +26,11 @@
   "com_nav_lang_traditional_chinese": "繁體中文",
   "com_nav_lang_turkish": "Türkçe",
   "com_nav_lang_vietnamese": "Tiếng Việt",
-  "com_nav_language": "ენა"
+  "com_nav_language": "ენა",
+  "com_ui_global_prompt_group": "გლობალური პრომპტების ჯგუფი",
+  "com_ui_prompt_already_shared_to_school": "ეს პრომპტი უკვე გაზიარებულია თქვენს სკოლასთან",
+  "com_ui_school_prompt_group": "სკოლის პრომპტების ჯგუფი",
+  "com_ui_share_school_form_description": "გააზიარეთ ეს პრომპტი თქვენს სკოლასთან",
+  "com_ui_share_school_var": "გაზიარება სკოლასთან",
+  "com_ui_share_to_school_users": "გაზიარება სკოლის მომხმარებლებთან"
 }

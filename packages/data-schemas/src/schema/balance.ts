@@ -36,6 +36,10 @@ const balanceSchema = new Schema<t.IBalance>({
     type: Number,
     default: 0,
   },
+  expiredDate: {
+    type: Date,
+    required: false,
+  },
 });
 
 export default balanceSchema;

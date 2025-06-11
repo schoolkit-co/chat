@@ -1,6 +1,7 @@
 import PromptSidePanel from '~/components/Prompts/Groups/GroupSidePanel';
 import AutoSendPrompt from '~/components/Prompts/Groups/AutoSendPrompt';
 import FilterPrompts from '~/components/Prompts/Groups/FilterPrompts';
+import ManagePrompts from '~/components/Prompts/ManagePrompts';
 import { usePromptGroupsNav } from '~/hooks';
 
 export default function PromptsAccordion() {
@@ -10,7 +11,8 @@ export default function PromptsAccordion() {
       <PromptSidePanel className="mt-2 space-y-2 lg:w-full xl:w-full" {...groupsNav}>
         <FilterPrompts setName={groupsNav.setName} className="items-center justify-center" />
         <div className="flex w-full flex-row items-center justify-end">
-          <AutoSendPrompt className="text-xs dark:text-white" />
+          <ManagePrompts className="select-none" />
+          {/* <AutoSendPrompt className="text-xs dark:text-white" /> */}
         </div>
       </PromptSidePanel>
     </div>

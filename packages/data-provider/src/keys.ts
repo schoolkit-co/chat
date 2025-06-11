@@ -41,6 +41,7 @@ export enum QueryKeys {
   promptGroup = 'promptGroup',
   categories = 'categories',
   randomPrompts = 'randomPrompts',
+  recentPrompts = 'recentPrompts',
   roles = 'roles',
   conversationTags = 'conversationTags',
   health = 'health',

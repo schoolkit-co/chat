@@ -11,6 +11,7 @@ import Clipboard from '~/components/svg/Clipboard';
 import CheckMark from '~/components/svg/CheckMark';
 import useLocalize from '~/hooks/useLocalize';
 import cn from '~/utils/cn';
+import { AnalyzeCodeToggle } from '~/custom/components/Messages/CodeUtil';
 
 type CodeBlockProps = Pick<
   CodeBarProps,
@@ -119,6 +120,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
   const language = isNonCode ? 'json' : lang;
 
   return (
+  <AnalyzeCodeToggle codeRef={codeRef} lang={lang}>
     <div className="w-full rounded-md bg-gray-900 text-xs text-white/80">
       <CodeBar
         lang={lang}
@@ -167,6 +169,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
         </>
       )}
     </div>
+  </AnalyzeCodeToggle>
   );
 };
 

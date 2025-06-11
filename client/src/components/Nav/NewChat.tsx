@@ -52,6 +52,7 @@ export default function NewChat({
 
   return (
     <>
+      <img src="/assets/schoolkit.png" alt="School Kit" className="w-full p-0" />
       <div className="flex items-center justify-between py-[2px] md:py-2">
         <TooltipAnchor
           description={localize('com_nav_close_sidebar')}

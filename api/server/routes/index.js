@@ -27,6 +27,13 @@ const edit = require('./edit');
 const keys = require('./keys');
 const user = require('./user');
 const ask = require('./ask');
+const school = require('~/custom/routes/school');
+const coupon = require('~/custom/routes/coupon');
+const customBalance = require('~/custom/routes/balance');
+const customUser = require('~/custom/routes/user');
+const admin = require('~/custom/routes/admin');
+const customPresets = require('~/custom/routes/presets');
+const promptsUtil = require('~/custom/routes/promptsUtil');
 
 module.exports = {
   ask,
@@ -58,4 +65,11 @@ module.exports = {
   assistants,
   categories,
   staticRoute,
+  school,
+  coupon,
+  customBalance,
+  customUser,
+  admin,
+  customPresets,
+  promptsUtil,
 };

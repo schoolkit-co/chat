@@ -13,6 +13,7 @@ const {
 const { sendMessage, createOnProgress } = require('~/server/utils');
 const { saveMessage } = require('~/models');
 const { logger } = require('~/config');
+const { checkUsagePermission } = require('~/custom/models/balanceUtil');
 
 const AskController = async (req, res, next, initializeClient, addTitle) => {
   let {
@@ -51,6 +52,15 @@ const AskController = async (req, res, next, initializeClient, addTitle) => {
   const initialConversationId = conversationId;
   const newConvo = !initialConversationId;
   const userId = req.user.id;
+
+  // ตรวจสอบว่าผู้ใช้มีสิทธิ์ใช้งานหรือไม่
+  const hasPermission = await checkUsagePermission(userId);
+  if (!hasPermission) {
+    return res.status(403).json({
+      message: 'ไม่มีสิทธิ์ในการใช้งาน หรือระยะเวลาทดลองใช้งานของคุณหมดแล้ว',
+      type: 'error'
+    });
+  }
 
   let reqDataContext = {
     userMessage,
