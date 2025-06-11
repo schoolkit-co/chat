@@ -1,0 +1,6 @@
+#!/bin/bash
+docker compose -f ./docker-compose.yml -f ./docker-compose.override.yml --env-file ./.envDocker down
+docker network create chat-network
+sudo docker compose -f ./devlocal/docker-compose.yml -f ./devlocal/docker-compose.override.yml --env-file ./devlocal/.env down
+sudo docker compose -f ./devlocal/docker-compose.yml -f ./devlocal/docker-compose.override.yml --env-file ./devlocal/.env up -d
+npm run backend:dev

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+echo "คำเตือน: การดำเนินการนี้จะลบข้อมูลผู้ใช้ทั้งหมด!"
+echo "โฟลเดอร์ที่จะถูกลบ:"
+echo "- data-node"
+echo "- redis"
+echo "- meili*"
+echo ""
+read -p "คุณแน่ใจหรือไม่ที่จะดำเนินการต่อ? (y/N): " confirm
+
+case $confirm in
+    [yY]|[yY][eE][sS])
+        echo "กำลังลบข้อมูล..."
+        sudo rm -rf data-node
+        sudo rm -rf redis
+        sudo rm -rf meili*
+        echo "ลบข้อมูลเรียบร้อยแล้ว!"
+        ;;
+    *)
+        echo "ยกเลิกการดำเนินการ"
+        exit 1
+        ;;
+esac
