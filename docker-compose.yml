@@ -22,7 +22,7 @@ services:
       - RAG_API_URL=http://rag_api:${RAG_PORT:-8000}
     volumes:
       - type: bind
-        source: ./.envDocker
+        source: ./.env
         target: /app/.env
       - ./images:/app/client/public/images
       - ./uploads:/app/uploads
@@ -66,7 +66,7 @@ services:
     depends_on:
       - vectordb
     env_file:
-      - .envDocker
+      - .env
 
 volumes:
   pgdata2:
