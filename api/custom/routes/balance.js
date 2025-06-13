@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { requireJwtAuth } = require('~/server/middleware');
-const { triggerAutoRefill } = require('~/custom/controllers/balance');
+const { triggerAutoRefill } = require('~/custom/utils/balanceUtils');
 const { clearSchoolBillTokenCacheController } = require('~/custom/controllers/cache');
 
 // Endpoint to manually trigger auto-refill

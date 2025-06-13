@@ -1,12 +1,6 @@
 const mongoose = require('mongoose');
 const logger = require('~/config/winston');
-// นำเข้า deleteCouponLogs แยกไว้ด้านบนเพื่อแก้ circular dependency
-let deleteCouponLogs;
-// นำเข้าทันทีที่ import module เสร็จเรียบร้อย
-setTimeout(() => {
-  const CouponLogModule = require('./CouponLog');
-  deleteCouponLogs = CouponLogModule.deleteCouponLogs;
-}, 0);
+const { deleteCouponLogs } = require('~/custom/utils/couponUtils');
 
 const couponSchema = new mongoose.Schema(
   {
@@ -133,15 +127,11 @@ const deleteCoupon = async (couponCode) => {
     }
 
     // ลบประวัติการใช้คูปอง
-    if (deleteCouponLogs) {
-      await deleteCouponLogs(couponCode);
-    } else {
-      logger.warn(`deleteCouponLogs function not available for coupon: ${couponCode}`);
-    }
-    
+    await deleteCouponLogs(coupon._id, couponCode);
+
     // ลบคูปอง
     await coupon.deleteOne();
-    
+
     logger.info(`Coupon deleted with all associated logs [Code: ${couponCode}]`);
     return { message: 'ลบคูปองและประวัติการใช้งานเรียบร้อยแล้ว' };
   } catch (error) {

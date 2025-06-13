@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const logger = require('~/config/winston');
 const Balance = mongoose.models.Balance;
-const { triggerAutoRefill } = require('~/custom/controllers/balance');
+const { triggerAutoRefill } = require('~/custom/utils/balanceUtils');
 
 const couponLogSchema = new mongoose.Schema(
   {
@@ -111,31 +111,8 @@ const getUserCouponLogs = async (userId) => {
   }
 };
 
-// ลบประวัติการใช้คูปองตาม couponCode
-const deleteCouponLogs = async (couponCode) => {
-  try {
-    // ค้นหา coupon ID จาก couponCode ก่อน
-    const Coupon = mongoose.model('Coupon');
-    const coupon = await Coupon.findOne({ couponCode });
-    
-    if (!coupon) {
-      logger.warn(`Coupon not found for deletion of logs: ${couponCode}`);
-      return { deletedCount: 0 };
-    }
-    
-    // ลบประวัติด้วย coupon ID
-    const result = await CouponLog.deleteMany({ coupon: coupon._id });
-    logger.info(`Deleted ${result.deletedCount} coupon logs for coupon: ${couponCode}`);
-    return result;
-  } catch (error) {
-    logger.error(`Error in deleteCouponLogs [Code: ${couponCode}]: `, error);
-    throw error;
-  }
-};
-
 module.exports = {
   CouponLog,
   redeemCoupon,
-  getUserCouponLogs,
-  deleteCouponLogs
+  getUserCouponLogs
 }; 
