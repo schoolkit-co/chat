@@ -32,10 +32,11 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui';
-import { useFileMapContext, useChatContext, useToastContext } from '~/Providers';
+import { useFileMapContext, useChatContext, useToastContext, useChatFormContext } from '~/Providers'; //Custom Code
 import { useLocalize, useUpdateFiles } from '~/hooks';
 import { useGetFileConfig } from '~/data-provider';
 import store from '~/store';
+import { handleImageClick } from '../../../custom/components/SidePanel/Files/PanelTableUtil'; //Custom Code
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -49,6 +50,7 @@ export default function DataTable<TData, TValue>({ columns, data }: DataTablePro
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
   const setShowFiles = useSetRecoilState(store.showFiles);
+  const methods = useChatFormContext(); //Custom Code
 
   const pagination = useMemo(
     () => ({
@@ -108,6 +110,12 @@ export default function DataTable<TData, TValue>({ columns, data }: DataTablePro
         return;
       }
 
+      //Custom Code
+      // Handle image click and continue if it's not an image
+      if (handleImageClick(fileData, methods)) {
+        // Continue with the normal file handling to show preview
+      }
+
       const isOpenAIStorage = checkOpenAIStorage(fileData.source);
       const isAssistants = isAssistantsEndpoint(endpoint);
 
@@ -162,7 +170,7 @@ export default function DataTable<TData, TValue>({ columns, data }: DataTablePro
         metadata: fileData.metadata,
       });
     },
-    [addFile, fileMap, conversation, localize, showToast, fileConfig.endpoints],
+    [addFile, fileMap, conversation, localize, showToast, fileConfig.endpoints, methods], //Custom Code
   );
 
   const filenameFilter = table.getColumn('filename')?.getFilterValue() as string;
