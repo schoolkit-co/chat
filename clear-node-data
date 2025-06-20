@@ -3,8 +3,12 @@
 echo "คำเตือน: การดำเนินการนี้จะลบข้อมูลผู้ใช้ทั้งหมด!"
 echo "โฟลเดอร์ที่จะถูกลบ:"
 echo "- data-node"
-echo "- redis"
 echo "- meili*"
+echo "- redis"
+echo "- node_modules"
+echo "- api/node_modules"
+echo "- client/node_modules"
+echo "- client/dist"
 echo ""
 read -p "คุณแน่ใจหรือไม่ที่จะดำเนินการต่อ? (y/N): " confirm
 
@@ -12,8 +16,12 @@ case $confirm in
     [yY]|[yY][eE][sS])
         echo "กำลังลบข้อมูล..."
         sudo rm -rf data-node
-        sudo rm -rf redis
         sudo rm -rf meili*
+        sudo rm -rf redis
+        sudo rm -rf node_modules
+        sudo rm -rf api/node_modules
+        sudo rm -rf client/node_modules
+        sudo rm -rf client/dist
         echo "ลบข้อมูลเรียบร้อยแล้ว!"
         ;;
     *)
