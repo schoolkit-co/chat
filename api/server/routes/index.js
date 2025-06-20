@@ -27,6 +27,7 @@ const edit = require('./edit');
 const keys = require('./keys');
 const user = require('./user');
 const ask = require('./ask');
+const mcp = require('./mcp');
 const school = require('~/custom/routes/school');
 const coupon = require('~/custom/routes/coupon');
 const customBalance = require('~/custom/routes/balance');
@@ -65,6 +66,7 @@ module.exports = {
   assistants,
   categories,
   staticRoute,
+  mcp,
   school,
   coupon,
   customBalance,
