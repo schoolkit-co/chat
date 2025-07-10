@@ -1,0 +1,3 @@
+#!/bin/bash
+sudo docker compose -f ./gateway-compose/docker-compose.yml down
+sudo docker compose -f ./gateway-compose/docker-compose.yml up -d
