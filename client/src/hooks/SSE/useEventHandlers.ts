@@ -35,7 +35,6 @@ import useStepHandler from '~/hooks/SSE/useStepHandler';
 import { useAuthContext } from '~/hooks/AuthContext';
 import { MESSAGE_UPDATE_INTERVAL } from '~/common';
 import { useLiveAnnouncer } from '~/Providers';
-import { clearSchoolBillTokenCache } from '~/custom/utils/clearSchoolCache';
 
 type TSyncData = {
   sync: boolean;
@@ -69,7 +68,7 @@ const createErrorMessage = ({
   errorMetadata?: Partial<TMessage>;
   submission: EventSubmission;
   error?: Error | unknown;
-}) => {
+}): TMessage => {
   const currentMessages = getMessages();
   const latestMessage = currentMessages?.[currentMessages.length - 1];
   let errorMessage: TMessage;
@@ -124,7 +123,7 @@ const createErrorMessage = ({
       error: true,
     };
   }
-  return tMessageSchema.parse(errorMessage);
+  return tMessageSchema.parse(errorMessage) as TMessage;
 };
 
 export const getConvoTitle = ({
@@ -375,9 +374,6 @@ export default function useEventHandlers({
       });
 
       let update = {} as TConversation;
-      if (conversationId) {
-        applyAgentTemplate(conversationId, submission.conversation.conversationId);
-      }
       if (setConversation && !isAddedRequest) {
         setConversation((prevState) => {
           const parentId = isRegenerate ? userMessage.overrideParentMessageId : parentMessageId;
@@ -410,6 +406,14 @@ export default function useEventHandlers({
           }) as TConversation;
           return update;
         });
+      }
+
+      if (conversationId) {
+        applyAgentTemplate(
+          conversationId,
+          submission.conversation.conversationId,
+          submission.ephemeralAgent,
+        );
       }
 
       if (resetLatestMessage) {
@@ -514,31 +518,36 @@ export default function useEventHandlers({
           }
           return update;
         });
+
+        if (conversation.conversationId && submission.ephemeralAgent) {
+          applyAgentTemplate(
+            conversation.conversationId,
+            submissionConvo.conversationId,
+            submission.ephemeralAgent,
+          );
+        }
+
         if (location.pathname === '/c/new') {
           navigate(`/c/${conversation.conversationId}`, { replace: true });
         }
       }
 
       setIsSubmitting(false);
-
-      // Clear school bill token cache after message completion
-      clearSchoolBillTokenCache().catch((error) => {
-        console.error('[finalHandler] Failed to clear school cache:', error);
-      });
     },
     [
-      setShowStopButton,
-      setCompleted,
-      getMessages,
-      announcePolite,
+      navigate,
       genTitle,
-      setConversation,
-      isAddedRequest,
-      setIsSubmitting,
+      getMessages,
       setMessages,
       queryClient,
+      setCompleted,
+      isAddedRequest,
+      announcePolite,
+      setConversation,
+      setIsSubmitting,
+      setShowStopButton,
       location.pathname,
-      navigate,
+      applyAgentTemplate,
     ],
   );
 
@@ -556,7 +565,7 @@ export default function useEventHandlers({
         queryClient.setQueryData<TMessage[]>([QueryKeys.messages, convoId], finalMessages);
       };
 
-      const parseErrorResponse = (data: TResData | Partial<TMessage>) => {
+      const parseErrorResponse = (data: TResData | Partial<TMessage>): TMessage => {
         const metadata = data['responseMessage'] ?? data;
         const errorMessage: Partial<TMessage> = {
           ...initialResponse,
@@ -569,7 +578,7 @@ export default function useEventHandlers({
           errorMessage.messageId = v4();
         }
 
-        return tMessageSchema.parse(errorMessage);
+        return tMessageSchema.parse(errorMessage) as TMessage;
       };
 
       if (!data) {
@@ -619,7 +628,7 @@ export default function useEventHandlers({
         ...data,
         error: true,
         parentMessageId: userMessage.messageId,
-      });
+      }) as TMessage;
 
       setErrorMessages(receivedConvoId, errorResponse);
       if (receivedConvoId && paramId === Constants.NEW_CONVO && newConversation) {

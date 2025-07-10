@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { MessageSquareQuote, ArrowRightToLine, Settings2, Database, Bookmark, LayoutDashboard } from 'lucide-react';
+import { MessageSquareQuote, ArrowRightToLine, Settings2, Database, Bookmark } from 'lucide-react';
 import {
   isAssistantsEndpoint,
   isAgentsEndpoint,
@@ -15,16 +15,12 @@ import BookmarkPanel from '~/components/SidePanel/Bookmarks/BookmarkPanel';
 import MemoryViewer from '~/components/SidePanel/Memories/MemoryViewer';
 import PanelSwitch from '~/components/SidePanel/Builder/PanelSwitch';
 import PromptsAccordion from '~/components/Prompts/PromptsAccordion';
+import { Blocks, MCPIcon, AttachmentIcon } from '~/components/svg';
 import Parameters from '~/components/SidePanel/Parameters/Panel';
 import FilesPanel from '~/components/SidePanel/Files/Panel';
 import MCPPanel from '~/components/SidePanel/MCP/MCPPanel';
-import { Blocks, AttachmentIcon } from '~/components/svg';
 import { useGetStartupConfig } from '~/data-provider';
-import MCPIcon from '~/components/ui/MCPIcon';
-import { useHasAccess, useAuthContext } from '~/hooks';
-import { useNavigate } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
-import store from '~/store';
+import { useHasAccess } from '~/hooks';
 
 export default function useSideNavLinks({
   hidePanel,
@@ -66,58 +62,9 @@ export default function useSideNavLinks({
     permission: Permissions.CREATE,
   });
   const { data: startupConfig } = useGetStartupConfig();
-  const { user } = useAuthContext();
-  const navigate = useNavigate();
-  const usageEnabled = useRecoilValue(store.usageEnabled);
 
   const Links = useMemo(() => {
     const links: NavLink[] = [];
-
-    // ถ้า usageEnabled เป็น false ให้แสดงเฉพาะปุ่ม Dashboard, Bookmark และปุ่มซ่อนแผง
-    if (!usageEnabled) {
-      // Dashboard buttons (admin/school) when usageEnabled is false
-      if (user?.role === 'ADMIN' && usageEnabled) {
-        links.push({
-          title: 'com_ui_dashboard',
-          label: 'Admin',
-          icon: LayoutDashboard,
-          id: 'admin-dashboard',
-          onClick: () => navigate('/d/admin'),
-        });
-      } else if (user?.schoolAdmin === true) {
-        links.push({
-          title: 'com_ui_dashboard',
-          label: 'School',
-          icon: LayoutDashboard,
-          id: 'school-dashboard',
-          onClick: () => navigate('/d/school'),
-        });
-      }
-
-      // Bookmark button
-      if (hasAccessToBookmarks) {
-        links.push({
-          title: 'com_sidepanel_conversation_tags',
-          label: '',
-          icon: Bookmark,
-          id: 'bookmarks',
-          Component: BookmarkPanel,
-        });
-      }
-
-      // Toggle panel button (always show)
-      links.push({
-        title: 'com_sidepanel_hide_panel',
-        label: '',
-        icon: ArrowRightToLine,
-        onClick: hidePanel,
-        id: 'hide-panel',
-      });
-
-      return links;
-    }
-
-    // Normal behavior when usageEnabled is true
     if (
       isAssistantsEndpoint(endpoint) &&
       ((endpoint === EModelEndpoint.assistants &&
@@ -132,7 +79,7 @@ export default function useSideNavLinks({
         title: 'com_sidepanel_assistant_builder',
         label: '',
         icon: Blocks,
-        id: 'assistants',
+        id: EModelEndpoint.assistants,
         Component: PanelSwitch,
       });
     }
@@ -147,27 +94,8 @@ export default function useSideNavLinks({
         title: 'com_sidepanel_agent_builder',
         label: '',
         icon: Blocks,
-        id: 'agents',
+        id: EModelEndpoint.agents,
         Component: AgentPanelSwitch,
-      });
-    }
-
-    // Dashboard buttons (admin/school) when usageEnabled is true
-    if (user?.role === 'ADMIN') {
-      links.push({
-        title: 'com_ui_dashboard',
-        label: 'Admin',
-        icon: LayoutDashboard,
-        id: 'admin-dashboard',
-        onClick: () => navigate('/d/admin'),
-      });
-    } else if (user?.schoolAdmin === true) {
-      links.push({
-        title: 'com_ui_dashboard',
-        label: 'School',
-        icon: LayoutDashboard,
-        id: 'school-dashboard',
-        onClick: () => navigate('/d/school'),
       });
     }
 
@@ -262,9 +190,6 @@ export default function useSideNavLinks({
     hasAccessToCreateAgents,
     hidePanel,
     startupConfig,
-    user,
-    navigate,
-    usageEnabled,
   ]);
 
   return Links;

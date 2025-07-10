@@ -11,14 +11,6 @@ import request from './request';
 import * as s from './schemas';
 import * as r from './roles';
 
-export function abortRequestWithMessage(
-  endpoint: string,
-  abortKey: string,
-  message: string,
-): Promise<void> {
-  return request.post(endpoints.abortRequest(endpoint), { arg: { abortKey, message } });
-}
-
 export function revokeUserKey(name: string): Promise<unknown> {
   return request.delete(endpoints.revokeUserKey(name));
 }
@@ -96,10 +88,6 @@ export function getUser(): Promise<t.TUser> {
 
 export function getUserBalance(): Promise<t.TBalanceResponse> {
   return request.get(endpoints.balance());
-}
-
-export function getSchoolBalance(): Promise<string> {
-  return request.get(endpoints.schoolBalance());
 }
 
 export const updateTokenCount = (text: string) => {
@@ -662,10 +650,6 @@ export function getAllPromptGroups(): Promise<q.AllPromptGroupsResponse> {
   return request.get(endpoints.getAllPromptGroups());
 }
 
-export function getRecentPrompts(): Promise<string[]> {
-  return request.get(endpoints.getRecentPrompts());
-}
-
 export function getPromptGroups(
   filter: t.TPromptGroupsWithFilterRequest,
 ): Promise<t.PromptGroupListResponse> {
@@ -683,7 +667,7 @@ export function createPrompt(payload: t.TCreatePrompt): Promise<t.TCreatePromptR
 export function updatePromptGroup(
   variables: t.TUpdatePromptGroupVariables,
 ): Promise<t.TUpdatePromptGroupResponse> {
-  return request.patch(variables.endpoint || endpoints.updatePromptGroup(variables.id), variables.payload);
+  return request.patch(endpoints.updatePromptGroup(variables.id), variables.payload);
 }
 
 export function deletePrompt(payload: t.TDeletePromptVariables): Promise<t.TDeletePromptResponse> {

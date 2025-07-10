@@ -33,7 +33,6 @@ import EditBadges from './EditBadges';
 import BadgeRow from './BadgeRow';
 import Mention from './Mention';
 import store from '~/store';
-import { DownloadBar } from '~/custom/components/Chat/ChatFormUtil';
 
 const ChatForm = memo(({ index = 0 }: { index?: number }) => {
   const submitButtonRef = useRef<HTMLButtonElement>(null);
@@ -207,7 +206,7 @@ const ChatForm = memo(({ index = 0 }: { index?: number }) => {
     <form
       onSubmit={methods.handleSubmit(submitMessage)}
       className={cn(
-        'mx-auto flex w-full flex-col gap-3 transition-[max-width] duration-300 sm:px-2',
+        'mx-auto flex w-full flex-row gap-3 transition-[max-width] duration-300 sm:px-2',
         maximizeChatSpace ? 'max-w-full' : 'md:max-w-3xl xl:max-w-4xl',
         centerFormOnLanding &&
           (conversationId == null || conversationId === Constants.NEW_CONVO) &&
@@ -217,7 +216,6 @@ const ChatForm = memo(({ index = 0 }: { index?: number }) => {
           : 'sm:mb-10',
       )}
     >
-      <DownloadBar methods={methods} submitMessage={submitMessage} textAreaRef={textAreaRef} />
       <div className="relative flex h-full flex-1 items-stretch md:flex-col">
         <div className={cn('flex w-full items-center', isRTL && 'flex-row-reverse')}>
           {showPlusPopover && !isAssistantsEndpoint(endpoint) && (
@@ -307,6 +305,7 @@ const ChatForm = memo(({ index = 0 }: { index?: number }) => {
               </div>
               <BadgeRow
                 showEphemeralBadges={!isAgentsEndpoint(endpoint) && !isAssistantsEndpoint(endpoint)}
+                isSubmitting={isSubmitting || isSubmittingAdded}
                 conversationId={conversationId}
                 onChange={setBadges}
                 isInChat={

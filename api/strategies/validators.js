@@ -62,12 +62,6 @@ const registerSchema = z
       .refine((value) => value.trim().length > 0, {
         message: 'Password cannot be only spaces',
       }),
-    school: z
-      .number()
-      .min(1)
-      .refine((value) => value > 0, {
-        message: 'School must be in the list. If your school is not in the list, please contact support',
-      }),
   })
   .superRefine(({ confirm_password, password }, ctx) => {
     if (confirm_password !== password) {

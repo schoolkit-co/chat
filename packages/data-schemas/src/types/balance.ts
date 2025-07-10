@@ -9,5 +9,4 @@ export interface IBalance extends Document {
   refillIntervalUnit: 'seconds' | 'minutes' | 'hours' | 'days' | 'weeks' | 'months';
   lastRefill: Date;
   refillAmount: number;
-  expiredDate?: Date;
 }

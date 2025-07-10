@@ -8,10 +8,9 @@ import VariableForm from './VariableForm';
 interface VariableDialogProps extends Omit<DialogPrimitive.DialogProps, 'onOpenChange'> {
   onClose: () => void;
   group: TPromptGroup | null;
-  onSavePromptHistory?: (groupId: string) => Promise<string[]|[]>;
 }
 
-const VariableDialog: React.FC<VariableDialogProps> = ({ open, onClose, group, onSavePromptHistory }) => {
+const VariableDialog: React.FC<VariableDialogProps> = ({ open, onClose, group }) => {
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       onClose();
@@ -34,7 +33,7 @@ const VariableDialog: React.FC<VariableDialogProps> = ({ open, onClose, group, o
     <OGDialog open={open} onOpenChange={handleOpenChange}>
       <OGDialogContent className="max-h-[90vh] max-w-full overflow-y-auto bg-white dark:border-gray-700 dark:bg-gray-850 dark:text-gray-300 md:max-w-[60vw]">
         <OGDialogTitle>{group.name}</OGDialogTitle>
-        <VariableForm group={group} onClose={onClose} onSavePromptHistory={onSavePromptHistory} />
+        <VariableForm group={group} onClose={onClose} />
       </OGDialogContent>
     </OGDialog>
   );

@@ -36,8 +36,7 @@ export default function useAppStartup({
 
   /** Set the app title */
   useEffect(() => {
-    // const appTitle = startupConfig?.appTitle ?? '';
-    const appTitle = 'SchoolKit Chat';
+    const appTitle = startupConfig?.appTitle ?? '';
     if (!appTitle) {
       return;
     }

@@ -1,3 +1,0 @@
-#!/bin/bash
-sudo docker compose -f ./services/docker-compose.yml -f ./services/docker-compose.override.yml --env-file ./.env down
-sudo docker compose -f ./services/docker-compose.yml -f ./services/docker-compose.override.yml --env-file ./.env up -d

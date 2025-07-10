@@ -7,7 +7,6 @@ import { TConversation } from 'librechat-data-provider';
 import { groupConversationsByDate } from '~/utils';
 import { Spinner } from '~/components/svg';
 import Convo from './Convo';
-import { ClearLocalStorageButton } from '~/custom/components/Conversations/ConversationsUtil';
 
 interface ConversationsProps {
   conversations: Array<TConversation | null>;
@@ -203,7 +202,6 @@ const Conversations: FC<ConversationsProps> = ({
           <Spinner className="text-text-primary" />
           <span className="ml-2 text-text-primary">Loading...</span>
         </div>
-      ) : !flattenedItems.length ? (<ClearLocalStorageButton />
       ) : (
         <div className="flex-1">
           <AutoSizer>

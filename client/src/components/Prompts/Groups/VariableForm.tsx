@@ -13,7 +13,6 @@ import { codeNoExecution } from '~/components/Chat/Messages/Content/Markdown';
 import { TextareaAutosize, InputCombobox, Button } from '~/components/ui';
 import { useAuthContext, useLocalize, useSubmitMessage } from '~/hooks';
 import { PromptVariableGfm } from '../Markdown';
-import { closeSidePanel } from '~/custom/components/Prompts/Groups/VariableFormUtil'; //Custom
 
 type FieldType = 'text' | 'select';
 
@@ -65,11 +64,9 @@ const parseFieldConfig = (variable: string): FieldConfig => {
 export default function VariableForm({
   group,
   onClose,
-  onSavePromptHistory,
 }: {
   group: TPromptGroup;
   onClose: () => void;
-  onSavePromptHistory?: (groupId: string) => Promise<string[]|[]>;
 }) {
   const localize = useLocalize();
   const { user } = useAuthContext();
@@ -124,7 +121,7 @@ export default function VariableForm({
     return tempText;
   };
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = (data: FormValues) => {
     let text = mainText;
     data.fields.forEach(({ variable, value }) => {
       if (!value) {
@@ -136,11 +133,6 @@ export default function VariableForm({
       text = text.replace(regex, value);
     });
 
-    if (onSavePromptHistory && group._id) {
-      await onSavePromptHistory(group._id);
-    }
-
-    closeSidePanel(); //Custom
     submitPrompt(text);
     onClose();
   };

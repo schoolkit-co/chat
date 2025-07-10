@@ -25,8 +25,6 @@ export const user = () => '/api/user';
 
 export const balance = () => '/api/balance';
 
-export const schoolBalance = () => '/api/school/balance';
-
 export const userPlugins = () => '/api/user/plugins';
 
 export const deleteUser = () => '/api/user/delete';
@@ -71,8 +69,6 @@ export const userKeyQuery = (name: string) => `${keysEndpoint}?name=${name}`;
 export const revokeUserKey = (name: string) => `${keysEndpoint}/${name}`;
 
 export const revokeAllUserKeys = () => `${keysEndpoint}?all=true`;
-
-export const abortRequest = (endpoint: string) => `/api/ask/${endpoint}/abort`;
 
 export const conversationsRoot = '/api/convos';
 
@@ -251,8 +247,6 @@ export const deletePrompt = ({ _id, groupId }: { _id: string; groupId: string })
 export const getCategories = () => '/api/categories';
 
 export const getAllPromptGroups = () => `${prompts()}/all`;
-
-export const getRecentPrompts = () => `${prompts()}/recent`;
 
 /* Roles */
 export const roles = () => '/api/roles';

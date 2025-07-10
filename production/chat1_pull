@@ -1,5 +1,0 @@
-#!/bin/bash
-docker pull gcr.codekit.in.th/schoolkit/chat:1.0
-sudo docker compose -f ./librechat1/docker-compose.yml -f ./librechat1/docker-compose.override.1.yml --env-file ./.env down
-sudo docker compose -f ./librechat1/docker-compose.yml -f ./librechat1/docker-compose.override.1.yml --env-file ./.env up -d
-docker logs LibreChat1 -f

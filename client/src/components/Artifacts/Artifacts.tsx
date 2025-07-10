@@ -10,7 +10,6 @@ import useLocalize from '~/hooks/useLocalize';
 import ArtifactTabs from './ArtifactTabs';
 import { CopyCodeButton } from './Code';
 import store from '~/store';
-import { getArtifactOverflowClass } from '~/custom/components/Artifacts/ArtifactUtil';
 
 export default function Artifacts() {
   const localize = useLocalize();
@@ -65,7 +64,7 @@ export default function Artifacts() {
           }`}
         >
           {/* Header */}
-          <div className={`flex items-center justify-between border-b border-border-medium bg-surface-primary-alt p-2 ${getArtifactOverflowClass()}`}>
+          <div className="flex items-center justify-between border-b border-border-medium bg-surface-primary-alt p-2">
             <div className="flex items-center">
               <button className="mr-2 text-text-secondary" onClick={closeArtifacts}>
                 <ArrowLeft className="h-4 w-4" />

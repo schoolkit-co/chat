@@ -50,7 +50,7 @@ router.post(
   registerLimiter,
   checkBan,
   checkInviteUser,
-  // validateRegistration,
+  validateRegistration,
   registrationController,
 );
 router.post(

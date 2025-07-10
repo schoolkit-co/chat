@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { useNavigate, useOutletContext, useLocation } from 'react-router-dom';
 import { useRegisterUserMutation } from 'librechat-data-provider/react-query';
@@ -8,7 +8,6 @@ import { useLocalize, TranslationKeys, ThemeContext } from '~/hooks';
 import type { TLoginLayoutContext } from '~/common';
 import { Spinner, Button } from '~/components';
 import { ErrorMessage } from './ErrorMessage';
-import { handleRegistration, RenderInput, SchoolInput, TRegisterUserForm } from '~/custom/components/Auth/RegistrationUtil';
 
 const Registration: React.FC = () => {
   const navigate = useNavigate();
@@ -21,12 +20,7 @@ const Registration: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
-  } = useForm<TRegisterUserForm>({ 
-    mode: 'onChange',
-    criteriaMode: 'all',
-    reValidateMode: 'onChange'
-  });
+  } = useForm<TRegisterUser>({ mode: 'onChange' });
   const password = watch('password');
 
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -45,7 +39,6 @@ const Registration: React.FC = () => {
   const registerUser = useRegisterUserMutation({
     onMutate: () => {
       setIsSubmitting(true);
-      setErrorMessage('');
     },
     onSuccess: () => {
       setIsSubmitting(false);
@@ -71,7 +64,6 @@ const Registration: React.FC = () => {
   });
 
   const renderInput = (id: string, label: TranslationKeys, type: string, validation: object) => (
-    <RenderInput id={id} label={label} validation={validation} util={{ watch, register, errors, password }}>
     <div className="mb-4">
       <div className="relative">
         <input
@@ -101,14 +93,7 @@ const Registration: React.FC = () => {
         </span>
       )}
     </div>
-    </RenderInput>
   );
-
-  useEffect(() => {
-    if (startupConfig?.registrationEnabled === false) {
-      navigate('/login');
-    }
-  }, [startupConfig]);
 
   return (
     <>
@@ -137,16 +122,8 @@ const Registration: React.FC = () => {
             className="mt-6"
             aria-label="Registration form"
             method="POST"
-            // onSubmit={handleSubmit((data: TRegisterUser) =>
-            //   registerUser.mutate({ ...data, token: token ?? undefined }),
-            // )}
-            onSubmit={handleSubmit((data: TRegisterUserForm) => 
-              handleRegistration({
-                data,
-                token,
-                registerUser,
-                setErrorMessage
-              })
+            onSubmit={handleSubmit((data: TRegisterUser) =>
+              registerUser.mutate({ ...data, token: token ?? undefined }),
             )}
           >
             {renderInput('name', 'com_auth_full_name', 'text', {
@@ -200,7 +177,6 @@ const Registration: React.FC = () => {
               validate: (value: string) =>
                 value === password || localize('com_auth_password_not_match'),
             })}
-            <SchoolInput register={register} errors={errors} watch={watch} setValue={setValue} />
 
             {startupConfig?.turnstile?.siteKey && (
               <div className="my-4 flex justify-center">

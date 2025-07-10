@@ -1,7 +1,7 @@
 import debounce from 'lodash/debounce';
 import { Tools, AuthType } from 'librechat-data-provider';
 import { TerminalSquareIcon } from 'lucide-react';
-import React, { useMemo, useCallback, useEffect, useState } from 'react';
+import React, { useMemo, useCallback, useEffect } from 'react';
 import type { CodeBarProps } from '~/common';
 import { useVerifyAgentToolAuth, useToolCallMutation } from '~/data-provider';
 import ApiKeyDialog from '~/components/SidePanel/Agents/Code/ApiKeyDialog';
@@ -10,7 +10,6 @@ import { useMessageContext } from '~/Providers';
 import { cn, normalizeLanguage } from '~/utils';
 import { useToastContext } from '~/Providers';
 import { Spinner } from '~/components';
-import { handlePythonExecute } from '~/custom/components/Messages/CodeUtil';
 
 const RunCode: React.FC<CodeBarProps> = React.memo(({ lang, codeRef, blockIndex }) => {
   const localize = useLocalize();
@@ -33,7 +32,6 @@ const RunCode: React.FC<CodeBarProps> = React.memo(({ lang, codeRef, blockIndex 
   const isAuthenticated = useMemo(() => data?.authenticated ?? false, [data?.authenticated]);
   const { methods, onSubmit, isDialogOpen, setIsDialogOpen, handleRevokeApiKey } =
     useCodeApiKeyForm({});
-  const [pythonIsLoading, setPythonIsLoading] = useState(false);
 
   const handleExecute = useCallback(async () => {
     if (!isAuthenticated) {
@@ -90,13 +88,10 @@ const RunCode: React.FC<CodeBarProps> = React.memo(({ lang, codeRef, blockIndex 
       <button
         type="button"
         className={cn('ml-auto flex gap-2')}
-        // onClick={debouncedExecute}
-        // disabled={execute.isLoading}
-        onClick={lang === 'python' ? handlePythonExecute({ codeRef, setPythonIsLoading }) : debouncedExecute}
-        disabled={lang === 'python' ? pythonIsLoading : execute.isLoading}
+        onClick={debouncedExecute}
+        disabled={execute.isLoading}
       >
-        {/* {execute.isLoading ? ( */}
-        {(lang === 'python' ? pythonIsLoading : execute.isLoading) ? (
+        {execute.isLoading ? (
           <Spinner className="animate-spin" size={18} />
         ) : (
           <TerminalSquareIcon size={18} />

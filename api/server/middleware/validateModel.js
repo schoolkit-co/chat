@@ -41,7 +41,7 @@ const validateModel = async (req, res, next) => {
   };
 
   await logViolation(req, res, type, errorMessage, score);
-  return handleError(res, { text: 'Illegal model request \n(รายชื่อโมเดลมีการเปลี่ยนแปลง, กรุณาเลือกโมเดล AI ด้านบนใหม่ แล้วกดปุ่มรีเฟรช)' });
+  return handleError(res, { text: 'Illegal model request' });
 };
 
 module.exports = validateModel;

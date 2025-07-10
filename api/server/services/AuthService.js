@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { webcrypto } = require('node:crypto');
 const { isEnabled } = require('@librechat/api');
 const { logger } = require('@librechat/data-schemas');
@@ -54,7 +55,7 @@ const logoutUser = async (req, refreshToken) => {
     }
 
     try {
-      req.session?.destroy();
+      req.session.destroy();
     } catch (destroyErr) {
       logger.debug('[logoutUser] Failed to destroy session.', destroyErr);
     }
@@ -176,7 +177,7 @@ const registerUser = async (user, additionalData = {}) => {
     return { status: 404, message: errorMessage };
   }
 
-  const { email, password, name, username, school } = user;
+  const { email, password, name, username } = user;
 
   let newUserId;
   try {
@@ -191,8 +192,7 @@ const registerUser = async (user, additionalData = {}) => {
 
       // Sleep for 1 second
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      // return { status: 200, message: genericVerificationMessage };
-      return { status: 409, message: 'duplicated email, อีเมลนี้ถูกใช้งานแล้ว กรุณาใช้อีเมลอื่นหรือลงชื่อเข้าใช้' };
+      return { status: 200, message: genericVerificationMessage };
     }
 
     if (!(await isEmailDomainAllowed(email))) {
@@ -200,23 +200,6 @@ const registerUser = async (user, additionalData = {}) => {
         'The email address provided cannot be used. Please use a different email address.';
       logger.error(`[registerUser] [Registration not allowed] [Email: ${user.email}]`);
       return { status: 403, message: errorMessage };
-    }
-
-    // ตรวจสอบจำนวนผู้ใช้ของโรงเรียนตาม premium
-    if (school) {
-      try {
-        // นำเข้าฟังก์ชันตรวจสอบจาก SchoolPremium
-        const { checkSchoolPremiumRegistration } = require('~/custom/models/SchoolPremium');
-        const premiumCheck = await checkSchoolPremiumRegistration(school);
-        
-        if (!premiumCheck.canRegister) {
-          logger.warn(`[registerUser] [School user limit reached] [School: ${school}] [Email: ${email}]`);
-          return { status: 403, message: premiumCheck.message };
-        }
-      } catch (error) {
-        logger.error(`[registerUser] Error checking school premium: ${error.message}`);
-        // ถ้าพบข้อผิดพลาดในการตรวจสอบ ให้ดำเนินการต่อ (ไม่บล็อกการลงทะเบียน)
-      }
     }
 
     //determine if this is the first registered user (not counting anonymous_user)
@@ -231,14 +214,8 @@ const registerUser = async (user, additionalData = {}) => {
       avatar: null,
       role: isFirstRegisteredUser ? SystemRoles.ADMIN : SystemRoles.USER,
       password: bcrypt.hashSync(password, salt),
-      school,
-      superCredit: isFirstRegisteredUser ? true : false,
       ...additionalData,
     };
-
-    if (newUserData.role === SystemRoles.ADMIN) {
-      delete newUserData.school;
-    }
 
     const emailEnabled = checkEmailConfig();
     const disableTTL = isEnabled(process.env.ALLOW_UNVERIFIED_EMAIL_LOGIN);
@@ -523,6 +500,18 @@ const resendVerificationEmail = async (req) => {
     };
   }
 };
+/**
+ * Generate a short-lived JWT token
+ * @param {String} userId - The ID of the user
+ * @param {String} [expireIn='5m'] - The expiration time for the token (default is 5 minutes)
+ * @returns {String} - The generated JWT token
+ */
+const generateShortLivedToken = (userId, expireIn = '5m') => {
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+    expiresIn: expireIn,
+    algorithm: 'HS256',
+  });
+};
 
 module.exports = {
   logoutUser,
@@ -530,7 +519,8 @@ module.exports = {
   registerUser,
   setAuthTokens,
   resetPassword,
+  setOpenIDAuthTokens,
   requestPasswordReset,
   resendVerificationEmail,
-  setOpenIDAuthTokens,
+  generateShortLivedToken,
 };

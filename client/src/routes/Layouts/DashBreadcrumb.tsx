@@ -2,7 +2,7 @@ import { useMemo, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SystemRoles } from 'librechat-data-provider';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { ArrowLeft, MessageSquareQuote, LayoutDashboard } from 'lucide-react';
+import { ArrowLeft, MessageSquareQuote } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -24,8 +24,6 @@ import { useDashboardContext } from '~/Providers';
 import store from '~/store';
 
 const promptsPathPattern = /prompts\/(?!new(?:\/|$)).*$/;
-const adminPathPattern = /admin(\/.*)?$/;
-const schoolPathPattern = /school(\/.*)?$/;
 
 const getConversationId = (prevLocationPath: string) => {
   if (!prevLocationPath || prevLocationPath.includes('/d/')) {
@@ -53,22 +51,6 @@ export default function DashBreadcrumb() {
 
   const chatLinkHandler = useCustomLink('/c/' + lastConversationId, clickCallback);
   const promptsLinkHandler = useCustomLink('/d/prompts');
-
-  // Admin or School dashboard link handler
-  const adminLinkHandler = useCustomLink('/d/admin');
-  const schoolLinkHandler = useCustomLink('/d/school');
-
-  const isAdminDashboardPath = useMemo(
-    () => adminPathPattern.test(location.pathname),
-    [location.pathname],
-  );
-
-  const isSchoolDashboardPath = useMemo(
-    () => schoolPathPattern.test(location.pathname),
-    [location.pathname],
-  );
-
-  const isDashboardPath = isAdminDashboardPath || isSchoolDashboardPath;
 
   const isPromptsPath = useMemo(
     () => promptsPathPattern.test(location.pathname),
@@ -111,16 +93,6 @@ export default function DashBreadcrumb() {
         <BreadcrumbSeparator />
         */}
           <BreadcrumbItem className="hover:dark:text-white">
-            {isDashboardPath ? (
-            <BreadcrumbLink
-              href={isAdminDashboardPath ? "/d/admin" : "/d/school"}
-              className="flex flex-row items-center gap-1"
-              onClick={isAdminDashboardPath ? adminLinkHandler : schoolLinkHandler}
-            >
-              <LayoutDashboard className="h-4 w-4 dark:text-gray-300" aria-hidden="true" />
-              {localize('com_ui_dashboard')}
-            </BreadcrumbLink>
-            ) : (
             <BreadcrumbLink
               href="/d/prompts"
               className="flex flex-row items-center gap-1"
@@ -129,7 +101,6 @@ export default function DashBreadcrumb() {
               <MessageSquareQuote className="h-4 w-4 dark:text-gray-300" aria-hidden="true" />
               {localize('com_ui_prompts')}
             </BreadcrumbLink>
-            )}
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

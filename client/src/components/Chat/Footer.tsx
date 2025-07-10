@@ -4,7 +4,6 @@ import TagManager from 'react-gtm-module';
 import { Constants } from 'librechat-data-provider';
 import { useGetStartupConfig } from '~/data-provider';
 import { useLocalize } from '~/hooks';
-import { CustomFooter } from '~/custom/components/Chat/FooterUtil';
 
 export default function Footer({ className }: { className?: string }) {
   const { data: config } = useGetStartupConfig();
@@ -87,10 +86,8 @@ export default function Footer({ className }: { className?: string }) {
     <div className="relative w-full">
       <div
         className={
-          'invisible ' + (
           className ??
           'absolute bottom-0 left-0 right-0 hidden items-center justify-center gap-2 px-2 py-2 text-center text-xs text-text-primary sm:flex md:px-[60px]'
-          )
         }
         role="contentinfo"
       >
@@ -109,7 +106,6 @@ export default function Footer({ className }: { className?: string }) {
           );
         })}
       </div>
-      <CustomFooter className={className} />
     </div>
   );
 }

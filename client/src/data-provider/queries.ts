@@ -2,15 +2,16 @@ import {
   QueryKeys,
   dataService,
   EModelEndpoint,
+  isAgentsEndpoint,
   defaultOrderQuery,
   defaultAssistantsVersion,
 } from 'librechat-data-provider';
 import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type {
-  InfiniteData,
   UseInfiniteQueryOptions,
   QueryObserverResult,
   UseQueryOptions,
+  InfiniteData,
 } from '@tanstack/react-query';
 import type t from 'librechat-data-provider';
 import type {
@@ -31,7 +32,6 @@ import type {
 } from 'librechat-data-provider';
 import type { ConversationCursorData } from '~/utils/convos';
 import { findConversationInInfinite } from '~/utils';
-import axios from 'axios';
 
 export const useGetPresetsQuery = (
   config?: UseQueryOptions<TPreset[]>,
@@ -204,7 +204,7 @@ export const useAvailableToolsQuery = <TData = t.TPlugin[]>(
   const keyExpiry = queryClient.getQueryData<TCheckUserKeyResponse>([QueryKeys.name, endpoint]);
   const userProvidesKey = !!endpointsConfig?.[endpoint]?.userProvide;
   const keyProvided = userProvidesKey ? !!keyExpiry?.expiresAt : true;
-  const enabled = !!endpointsConfig?.[endpoint] && keyProvided;
+  const enabled = isAgentsEndpoint(endpoint) ? true : !!endpointsConfig?.[endpoint] && keyProvided;
   const version: string | number | undefined =
     endpointsConfig?.[endpoint]?.version ?? defaultAssistantsVersion[endpoint];
   return useQuery<t.TPlugin[], unknown, TData>(
@@ -524,27 +524,6 @@ export const useGetRandomPrompts = (
       retry: false,
       ...config,
       enabled: config?.enabled !== undefined ? config.enabled : true,
-    },
-  );
-};
-
-export const useGetRecentPrompts = (
-  config?: UseQueryOptions<string[]>,
-): QueryObserverResult<string[]> => {
-  return useQuery<string[]>(
-    ['recentPrompts'],
-    async () => {
-      const response = await axios.get('/api/prompts/recent', {
-        withCredentials: true,
-      });
-      return response.data;
-    },
-    {
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchOnMount: false,
-      retry: false,
-      ...config,
     },
   );
 };

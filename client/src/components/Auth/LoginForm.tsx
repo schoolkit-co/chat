@@ -6,7 +6,6 @@ import type { TAuthContext } from '~/common';
 import { useResendVerificationEmail, useGetStartupConfig } from '~/data-provider';
 import { ThemeContext, useLocalize } from '~/hooks';
 import { Spinner, Button } from '~/components';
-import PasswordInput from '~/custom/components/Auth/PasswordInput';
 
 type TLoginFormProps = {
   onSubmit: (data: TLoginUser) => void;
@@ -118,7 +117,7 @@ const LoginForm: React.FC<TLoginFormProps> = ({ onSubmit, startupConfig, error, 
           {renderError('email')}
         </div>
         <div className="mb-2">
-          {/* <div className="relative">
+          <div className="relative">
             <input
               type="password"
               id="password"
@@ -140,20 +139,7 @@ const LoginForm: React.FC<TLoginFormProps> = ({ onSubmit, startupConfig, error, 
               {localize('com_auth_password')}
             </label>
           </div>
-          {renderError('password')} */}
-          <PasswordInput
-            id="password"
-            label={localize('com_auth_password')}
-            register={register}
-            errors={errors}
-            autoComplete="current-password"
-            validation={{
-              required: localize('com_auth_password_required'),
-              minLength: { value: 8, message: localize('com_auth_password_min_length') },
-              maxLength: { value: 128, message: localize('com_auth_password_max_length') },
-            }}
-            labelClassName="peer-focus:text-green-600 dark:peer-focus:text-green-500"
-          />
+          {renderError('password')}
         </div>
         {startupConfig.passwordResetEnabled && (
           <a

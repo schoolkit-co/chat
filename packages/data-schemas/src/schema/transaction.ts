@@ -51,10 +51,6 @@ const transactionSchema: Schema<ITransaction> = new Schema(
     inputTokens: { type: Number },
     writeTokens: { type: Number },
     readTokens: { type: Number },
-    school: {
-      type: Number,
-      index: true,
-    },
   },
   {
     timestamps: true,

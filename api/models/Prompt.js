@@ -9,7 +9,6 @@ const {
 } = require('./Project');
 const { PromptGroup, Prompt } = require('~/db/models');
 const { escapeRegExp } = require('~/server/utils');
-const { createCombinedPromptQuery } = require('~/custom/controllers/prompt');
 
 /**
  * Create a pipeline for the aggregation to get prompt groups
@@ -45,7 +44,6 @@ const createGroupPipeline = (query, skip, limit) => {
         authorName: 1,
         createdAt: 1,
         updatedAt: 1,
-        schoolId: 1,
         'productionPrompt.prompt': 1,
         // 'productionPrompt._id': 1,
         // 'productionPrompt.type': 1,
@@ -71,7 +69,6 @@ const createAllGroupsPipeline = (
     createdAt: 1,
     updatedAt: 1,
     command: 1,
-    schoolId: 1,
     'productionPrompt.prompt': 1,
   },
 ) => {
@@ -128,12 +125,11 @@ const getAllPromptGroups = async (req, filter) => {
 
     if (searchShared) {
       const project = await getProjectByName(Constants.GLOBAL_PROJECT_NAME, 'promptGroupIds');
-      // if (project && project.promptGroupIds && project.promptGroupIds.length > 0) {
-      //   const projectQuery = { _id: { $in: project.promptGroupIds }, ...query };
-      //   delete projectQuery.author;
-      //   combinedQuery = searchSharedOnly ? projectQuery : { $or: [projectQuery, query] };
-      // }
-      combinedQuery = createCombinedPromptQuery(query, project, req, searchSharedOnly);
+      if (project && project.promptGroupIds && project.promptGroupIds.length > 0) {
+        const projectQuery = { _id: { $in: project.promptGroupIds }, ...query };
+        delete projectQuery.author;
+        combinedQuery = searchSharedOnly ? projectQuery : { $or: [projectQuery, query] };
+      }
     }
 
     const promptGroupsPipeline = createAllGroupsPipeline(combinedQuery);
@@ -183,12 +179,11 @@ const getPromptGroups = async (req, filter) => {
     if (searchShared) {
       // const projects = req.user.projects || []; // TODO: handle multiple projects
       const project = await getProjectByName(Constants.GLOBAL_PROJECT_NAME, 'promptGroupIds');
-      // if (project && project.promptGroupIds && project.promptGroupIds.length > 0) {
-      //   const projectQuery = { _id: { $in: project.promptGroupIds }, ...query };
-      //   delete projectQuery.author;
-      //   combinedQuery = searchSharedOnly ? projectQuery : { $or: [projectQuery, query] };
-      // }
-      combinedQuery = createCombinedPromptQuery(query, project, req, searchSharedOnly);
+      if (project && project.promptGroupIds && project.promptGroupIds.length > 0) {
+        const projectQuery = { _id: { $in: project.promptGroupIds }, ...query };
+        delete projectQuery.author;
+        combinedQuery = searchSharedOnly ? projectQuery : { $or: [projectQuery, query] };
+      }
     }
 
     const skip = (validatedPageNumber - 1) * validatedPageSize;

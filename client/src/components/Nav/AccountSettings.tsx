@@ -1,7 +1,7 @@
 import { useState, memo } from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 import * as Select from '@ariakit/react/select';
-import { FileText, LogOut, RefreshCw, Ticket } from 'lucide-react';
+import { FileText, LogOut } from 'lucide-react';
 import { LinkIcon, GearIcon, DropdownMenuSeparator } from '~/components';
 import { useGetStartupConfig, useGetUserBalance } from '~/data-provider';
 import FilesView from '~/components/Chat/Input/Files/FilesView';
@@ -11,10 +11,6 @@ import { UserIcon } from '~/components/svg';
 import { useLocalize } from '~/hooks';
 import Settings from './Settings';
 import store from '~/store';
-import CouponRedeemModal from '~/custom/components/Nav/CouponRedeemModal';
-import axios from 'axios';
-import { useQuery } from '@tanstack/react-query';
-import { CouponMenuItem } from '~/custom/components/Nav/AccountSettingsUtil'; //Custom
 
 function AccountSettings() {
   const localize = useLocalize();
@@ -25,49 +21,6 @@ function AccountSettings() {
   });
   const [showSettings, setShowSettings] = useState(false);
   const [showFiles, setShowFiles] = useRecoilState(store.showFiles);
-  const [refreshing, setRefreshing] = useState(false);
-  const [showCouponModal, setShowCouponModal] = useState(false);
-  const queriesEnabled = useRecoilValue(store.queriesEnabled);
-
-  // School balance query with auto-refresh every minute
-  const schoolBalanceQuery = useQuery({
-    queryKey: ['schoolBalance'],
-    queryFn: async () => {
-      const response = await axios.get('/api/school/balance');
-      return response.data;
-    },
-    enabled: !!isAuthenticated && queriesEnabled && !!(user as any)?.school,
-    refetchInterval: 60000, // รีเฟรชทุก 60 วินาที (1 นาที)
-    refetchIntervalInBackground: true,
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
-    refetchOnMount: true,
-  });
-
-  const handleRefreshBalance = async () => {
-    if (refreshing) return;
-    setRefreshing(true);
-    
-    try {
-      // เรียกใช้ API ใหม่เพื่อทำ auto-refill แทนที่จะใช้ refetch
-      const response = await axios.post('/api/custom-balance/auto-refill');
-      
-      // อัปเดตข้อมูลหลังจากได้รับการตอบกลับจาก API
-      if (response.data.success) {
-        // ถ้า refill สำเร็จ จะได้ balance ใหม่มาด้วย
-        balanceQuery.refetch();
-      } else {
-        // ถ้า refill ไม่สำเร็จ (เช่น ยังไม่ถึงเวลา) ก็แค่ refetch balance ปกติ
-        balanceQuery.refetch();
-      }
-    } catch (error) {
-      console.error('Failed to trigger auto-refill:', error);
-      // ถ้าเกิดข้อผิดพลาด ก็แค่ refetch balance ปกติ
-      balanceQuery.refetch();
-    } finally {
-      setTimeout(() => setRefreshing(false), 500);
-    }
-  };
 
   const avatarSrc = useAvatar(user);
   const avatarSeed = user?.avatar || user?.name || user?.username || '';
@@ -122,34 +75,11 @@ function AccountSettings() {
           {user?.email ?? localize('com_nav_user')}
         </div>
         <DropdownMenuSeparator />
-        {schoolBalanceQuery.data?.remainingBalance != null && !isNaN(parseFloat(schoolBalanceQuery.data.remainingBalance)) ? (
+        {startupConfig?.balance?.enabled === true && balanceQuery.data != null && (
           <>
-            <div className="ml-3 mr-2 py-2 text-sm text-token-text-secondary" role="note">
-              <span>
-                ยอดเงินคงเหลือโรงเรียน: <span className={parseFloat(schoolBalanceQuery.data.remainingBalance) <= 0 ? 'text-red-500' : ''}>{parseFloat(schoolBalanceQuery.data.remainingBalance).toFixed(2).toLocaleString()}</span>
-              </span>
-            </div>
-            <DropdownMenuSeparator />
-          </>
-        ) : !isNaN(parseFloat(balanceQuery?.data?.tokenCredits)) &&
-        startupConfig?.balance?.enabled === true && balanceQuery.data != null && (
-          <>
-            {/* <div className="text-token-text-secondary ml-3 mr-2 py-2 text-sm" role="note"> */}
-            <div className="text-token-text-secondary ml-3 mr-2 py-2 text-sm flex items-center justify-between" role="note">
-              <span>
+            <div className="text-token-text-secondary ml-3 mr-2 py-2 text-sm" role="note">
               {localize('com_nav_balance')}:{' '}
               {new Intl.NumberFormat().format(Math.round(balanceQuery.data.tokenCredits))}
-              </span>
-              <div className="flex space-x-1">
-                <button 
-                  onClick={handleRefreshBalance} 
-                  className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                  disabled={refreshing}
-                  title="อัพเดทยอดเงิน"
-                >
-                  <RefreshCw size={14} className={`${refreshing ? 'animate-spin' : ''}`} />
-                </button>
-              </div>
             </div>
             <DropdownMenuSeparator />
           </>
@@ -162,8 +92,7 @@ function AccountSettings() {
           <FileText className="icon-md" aria-hidden="true" />
           {localize('com_nav_my_files')}
         </Select.SelectItem>
-        <CouponMenuItem onClick={() => setShowCouponModal(true)}/>
-        {/* {startupConfig?.helpAndFaqURL !== '/' && (
+        {startupConfig?.helpAndFaqURL !== '/' && (
           <Select.SelectItem
             value=""
             onClick={() => window.open(startupConfig?.helpAndFaqURL, '_blank')}
@@ -172,7 +101,7 @@ function AccountSettings() {
             <LinkIcon aria-hidden="true" />
             {localize('com_nav_help_faq')}
           </Select.SelectItem>
-        )} */}
+        )}
         <Select.SelectItem
           value=""
           onClick={() => setShowSettings(true)}
@@ -194,12 +123,6 @@ function AccountSettings() {
       </Select.SelectPopover>
       {showFiles && <FilesView open={showFiles} onOpenChange={setShowFiles} />}
       {showSettings && <Settings open={showSettings} onOpenChange={setShowSettings} />}
-      {showCouponModal && (
-        <CouponRedeemModal 
-          onClose={() => setShowCouponModal(false)} 
-          onSuccess={() => balanceQuery.refetch()}
-        />
-      )}
     </Select.SelectProvider>
   );
 }

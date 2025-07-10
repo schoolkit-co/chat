@@ -17,7 +17,7 @@ const cancelRate = 1.15;
  * @returns {Promise<Object>} Returns the updated balance document (lean).
  * @throws {Error} Throws an error if the update fails after multiple retries.
  */
-const updateBalance = async ({ user, incrementValue, setValues, resetBalance = false }) => {
+const updateBalance = async ({ user, incrementValue, setValues }) => {
   let maxRetries = 10; // Number of times to retry on conflict
   let delay = 50; // Initial retry delay in ms
   let lastError = null;
@@ -30,7 +30,7 @@ const updateBalance = async ({ user, incrementValue, setValues, resetBalance = f
       const currentCredits = currentBalanceDoc ? currentBalanceDoc.tokenCredits : 0;
 
       // 2. Calculate the desired new state
-      const potentialNewCredits = resetBalance ? (currentCredits > incrementValue ? currentCredits : incrementValue) : (currentCredits + incrementValue);
+      const potentialNewCredits = currentCredits + incrementValue;
       const newCredits = Math.max(0, potentialNewCredits); // Ensure balance doesn't go below zero
 
       // 3. Prepare the update payload
@@ -174,7 +174,6 @@ async function createAutoRefillTransaction(txData) {
     user: transaction.user,
     incrementValue: txData.rawAmount,
     setValues: { lastRefill: new Date() },
-    resetBalance: true,
   });
   const result = {
     rate: transaction.rate,
@@ -195,21 +194,13 @@ async function createTransaction(txData) {
     return;
   }
 
-  // Use lazy loading to avoid circular dependency
-  try {
-    const { addSchoolToTransaction } = require('~/custom/controllers/balance');
-    await addSchoolToTransaction(txData);
-  } catch (error) {
-    logger.warn('Could not load addSchoolToTransaction due to circular dependency:', error.message);
-  }
-
   const transaction = new Transaction(txData);
   transaction.endpointTokenConfig = txData.endpointTokenConfig;
   calculateTokenValue(transaction);
 
   await transaction.save();
 
-  const balance = await getBalanceConfig(transaction.user);
+  const balance = await getBalanceConfig();
   if (!balance?.enabled) {
     return;
   }
@@ -233,16 +224,6 @@ async function createTransaction(txData) {
  * @param {txData} txData - Transaction data.
  */
 async function createStructuredTransaction(txData) {
-  const Transaction = this;
-
-  // Use lazy loading to avoid circular dependency
-  try {
-    const { addSchoolToTransaction } = require('~/custom/controllers/balance');
-    await addSchoolToTransaction(txData);
-  } catch (error) {
-    logger.warn('Could not load addSchoolToTransaction due to circular dependency:', error.message);
-  }
-
   const transaction = new Transaction({
     ...txData,
     endpointTokenConfig: txData.endpointTokenConfig,
@@ -252,7 +233,7 @@ async function createStructuredTransaction(txData) {
 
   await transaction.save();
 
-  const balance = await getBalanceConfig(transaction.user);
+  const balance = await getBalanceConfig();
   if (!balance?.enabled) {
     return;
   }

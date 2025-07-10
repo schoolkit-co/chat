@@ -17,9 +17,6 @@ export interface IUser extends Document {
   githubId?: string;
   discordId?: string;
   appleId?: string;
-  school?: number;
-  schoolAdmin?: boolean;
-  superCredit?: boolean;
   plugins?: unknown[];
   twoFactorEnabled?: boolean;
   totpSecret?: string;

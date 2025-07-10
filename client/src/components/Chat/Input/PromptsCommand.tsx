@@ -37,7 +37,6 @@ const PopoverContainer = memo(
           open={isVariableDialogOpen}
           onClose={() => setVariableDialogOpen(false)}
           group={variableGroup}
-          onSavePromptHistory={undefined}
         />
       </>
     );

@@ -98,6 +98,7 @@ export type TEndpointOption = Pick<
 export type TEphemeralAgent = {
   mcp?: string[];
   web_search?: boolean;
+  file_search?: boolean;
   execute_code?: boolean;
 };
 
@@ -108,10 +109,14 @@ export type TPayload = Partial<TMessage> &
     messages?: TMessages;
     isTemporary: boolean;
     ephemeralAgent?: TEphemeralAgent | null;
+    editedContent?: {
+      index: number;
+      text: string;
+      type: 'text' | 'think';
+    } | null;
   };
 
 export type TSubmission = {
-  artifacts?: string;
   plugin?: TResPlugin;
   plugins?: TResPlugin[];
   userMessage: TMessage;
@@ -126,6 +131,11 @@ export type TSubmission = {
   endpointOption: TEndpointOption;
   clientTimestamp?: string;
   ephemeralAgent?: TEphemeralAgent | null;
+  editedContent?: {
+    index: number;
+    text: string;
+    type: 'text' | 'think';
+  } | null;
 };
 
 export type EventSubmission = Omit<TSubmission, 'initialResponse'> & { initialResponse: TMessage };
@@ -133,7 +143,7 @@ export type EventSubmission = Omit<TSubmission, 'initialResponse'> & { initialRe
 export type TPluginAction = {
   pluginKey: string;
   action: 'install' | 'uninstall';
-  auth?: Partial<Record<string, string>>;
+  auth?: Partial<Record<string, string>> | null;
   isEntityTool?: boolean;
 };
 
@@ -143,7 +153,7 @@ export type TUpdateUserPlugins = {
   isEntityTool?: boolean;
   pluginKey: string;
   action: string;
-  auth?: Partial<Record<string, string | null>>;
+  auth?: Partial<Record<string, string | null>> | null;
 };
 
 // TODO `label` needs to be changed to the proper `TranslationKeys`
@@ -359,7 +369,6 @@ export type TRegisterUser = {
   password: string;
   confirm_password?: string;
   token?: string;
-  school: number;
 };
 
 export type TLoginUser = {
@@ -489,7 +498,6 @@ export type TPromptGroup = {
   productionPrompt?: Pick<TPrompt, 'prompt'> | null;
   author: string;
   authorName: string;
-  schoolId?: number | null;
   createdAt?: Date;
   updatedAt?: Date;
   _id?: string;
@@ -536,14 +544,11 @@ export type TCreatePromptResponse = {
 
 export type TUpdatePromptGroupPayload = Partial<TPromptGroup> & {
   removeProjectIds?: string[];
-  schoolShare?: boolean;
-  removeSchoolShare?: boolean;
 };
 
 export type TUpdatePromptGroupVariables = {
   id: string;
   payload: TUpdatePromptGroupPayload;
-  endpoint?: string;
 };
 
 export type TUpdatePromptGroupResponse = TPromptGroup;

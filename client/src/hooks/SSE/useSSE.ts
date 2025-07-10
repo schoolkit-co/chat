@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react';
 import { v4 } from 'uuid';
 import { SSE } from 'sse.js';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useSetRecoilState } from 'recoil';
 import {
   request,
   Constants,
   /* @ts-ignore */
   createPayload,
-  isAgentsEndpoint,
   LocalStorageKeys,
   removeNullishValues,
-  isAssistantsEndpoint,
 } from 'librechat-data-provider';
 import type { TMessage, TPayload, TSubmission, EventSubmission } from 'librechat-data-provider';
 import type { EventHandlerParams } from './useEventHandlers';
@@ -19,7 +17,6 @@ import { useGenTitleMutation, useGetStartupConfig, useGetUserBalance } from '~/d
 import { useAuthContext } from '~/hooks/AuthContext';
 import useEventHandlers from './useEventHandlers';
 import store from '~/store';
-import { codeBlockAnalysisStatusState } from '~/store/temporary';
 
 const clearDraft = (conversationId?: string | null) => {
   if (conversationId) {
@@ -91,7 +88,6 @@ export default function useSSE(
   const balanceQuery = useGetUserBalance({
     enabled: !!isAuthenticated && startupConfig?.balance?.enabled,
   });
-  const [analysisStatus, setAnalysisStatus] = useRecoilState(codeBlockAnalysisStatusState);
 
   useEffect(() => {
     if (submission == null || Object.keys(submission).length === 0) {
@@ -102,9 +98,7 @@ export default function useSSE(
 
     const payloadData = createPayload(submission);
     let { payload } = payloadData;
-    if (isAssistantsEndpoint(payload.endpoint) || isAgentsEndpoint(payload.endpoint)) {
-      payload = removeNullishValues(payload) as TPayload;
-    }
+    payload = removeNullishValues(payload) as TPayload;
 
     let textIndex = null;
 
@@ -131,10 +125,6 @@ export default function useSSE(
         finalHandler(data, { ...submission, plugins } as EventSubmission);
         (startupConfig?.balance?.enabled ?? false) && balanceQuery.refetch();
         console.log('final', data);
-
-        // เมื่อเสร็จสิ้นคำตอบ กำหนดให้สถานะเป็น analyzed
-        setAnalysisStatus('analyzed');
-
         return;
       } else if (data.created != null) {
         const runId = v4();
@@ -179,9 +169,6 @@ export default function useSSE(
     sse.addEventListener('open', () => {
       setAbortScroll(false);
       console.log('connection is opened');
-
-      // กำหนดสถานะเป็น analyzing ตอนเริ่มต้นการตอบคำถาม
-      setAnalysisStatus('analyzing');
     });
 
     sse.addEventListener('cancel', async () => {

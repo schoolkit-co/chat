@@ -1,6 +1,6 @@
 {
   "name": "LibreChat",
-  "version": "v0.7.8",
+  "version": "v0.7.9-rc1",
   "description": "",
   "workspaces": [
     "api",
@@ -53,7 +53,6 @@
     "e2e:github": "act -W .github/workflows/playwright.yml --secret-file my.secrets",
     "test:client": "cd client && npm run test:ci",
     "test:api": "cd api && npm run test:ci",
-    "test:custom-api": "cd api && npm run test:custom",
     "e2e:update": "playwright test --config=e2e/playwright.config.js --update-snapshots",
     "e2e:report": "npx playwright show-report e2e/playwright-report",
     "lint:fix": "eslint --fix \"{,!(node_modules|venv)/**/}*.{js,jsx,ts,tsx}\"",
@@ -116,6 +115,7 @@
     "typescript-eslint": "^8.24.0"
   },
   "overrides": {
+    "@langchain/openai": "^0.5.16",
     "axios": "1.8.2",
     "elliptic": "^6.6.1",
     "mdast-util-gfm-autolink-literal": "2.0.0",
@@ -143,8 +143,5 @@
       "admin/",
       "packages/"
     ]
-  },
-  "dependencies": {
-    "mongodb": "^6.16.0"
   }
 }

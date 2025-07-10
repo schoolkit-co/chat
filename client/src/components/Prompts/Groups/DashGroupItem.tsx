@@ -1,5 +1,5 @@
 import { memo, useState, useRef, useMemo, useCallback, KeyboardEvent } from 'react';
-import { EarthIcon, Pen, School } from 'lucide-react';
+import { EarthIcon, Pen } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { SystemRoles, type TPromptGroup } from 'librechat-data-provider';
 import { useDeletePromptGroup, useUpdatePromptGroup } from '~/data-provider';
@@ -96,12 +96,7 @@ function DashGroupItemComponent({ group, instanceProjectId }: DashGroupItemProps
           {isGlobalGroup && (
             <EarthIcon
               className="icon-md text-green-500"
-              aria-label={localize('com_ui_global_prompt_group')}
-            />
-          )}
-          {group.schoolId && Number(user?.school) && Number(group.schoolId) === Number(user?.school) && (
-            <School
-              className="icon-md text-blue-400"
+              aria-label={localize('com_ui_global_group')}
             />
           )}
           {(isOwner || user?.role === SystemRoles.ADMIN) && (

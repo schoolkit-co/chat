@@ -22,41 +22,25 @@ async function getCustomConfig() {
  * @function getBalanceConfig
  * @returns {Promise<TCustomConfig['balance'] | null>}
  * */
-async function getBalanceConfig(userId) {
+async function getBalanceConfig() {
   const isLegacyEnabled = isEnabled(process.env.CHECK_BALANCE);
   const startBalance = process.env.START_BALANCE;
   /** @type {TCustomConfig['balance']} */
   const config = {
     enabled: isLegacyEnabled,
     startBalance: startBalance != null && startBalance ? parseInt(startBalance, 10) : undefined,
-    autoRefillEnabled: isEnabled(process.env.AUTO_REFILL_ENABLED),
-    refillIntervalValue: parseInt(process.env.REFILL_INTERVAL_VALUE, 10),
-    refillIntervalUnit: process.env.REFILL_INTERVAL_UNIT,
-    refillAmount: parseInt(process.env.REFILL_AMOUNT, 10),
   };
-  let schoolKitConfig = {};
-  if (userId) {
-    // Use lazy loading to avoid circular dependency
-    try {
-      const { getSchoolKitBalanceConfig } = require('~/custom/models/balanceUtil');
-      schoolKitConfig = await getSchoolKitBalanceConfig(userId);
-    } catch (error) {
-      // Handle circular dependency gracefully
-      console.warn('Could not load school kit balance config due to circular dependency:', error.message);
-    }
-  }
   const customConfig = await getCustomConfig();
   if (!customConfig) {
-    return { ...config, ...schoolKitConfig };
     return config;
   }
-  return { ...config, ...(customConfig?.['balance'] ?? {}), ...schoolKitConfig };
   return { ...config, ...(customConfig?.['balance'] ?? {}) };
 }
 
 /**
  *
  * @param {string | EModelEndpoint} endpoint
+ * @returns {Promise<TEndpoint | undefined>}
  */
 const getCustomEndpointConfig = async (endpoint) => {
   const customConfig = await getCustomConfig();

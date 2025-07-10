@@ -1,3 +1,5 @@
+const { sendEvent } = require('@librechat/api');
+const { logger } = require('@librechat/data-schemas');
 const { getResponseSender } = require('librechat-data-provider');
 const {
   handleAbortError,
@@ -10,10 +12,8 @@ const {
   clientRegistry,
   requestDataMap,
 } = require('~/server/cleanup');
-const { sendMessage, createOnProgress } = require('~/server/utils');
+const { createOnProgress } = require('~/server/utils');
 const { saveMessage } = require('~/models');
-const { logger } = require('~/config');
-const { checkUsagePermission } = require('~/custom/models/balanceUtil');
 
 const EditController = async (req, res, next, initializeClient) => {
   let {
@@ -55,15 +55,6 @@ const EditController = async (req, res, next, initializeClient) => {
   const userMessageId = parentMessageId;
   const userId = req.user.id;
 
-  // ตรวจสอบว่าผู้ใช้มีสิทธิ์ใช้งานหรือไม่
-  const hasPermission = await checkUsagePermission(user);
-  if (!hasPermission) {
-    return res.status(403).json({
-      message: 'ไม่มีสิทธิ์ในการใช้งาน หรือระยะเวลาทดลองใช้งานของคุณหมดแล้ว',
-      type: 'error'
-    });
-  }
-
   let reqDataContext = { userMessage, userMessagePromise, responseMessageId, promptTokens };
 
   const updateReqData = (data = {}) => {
@@ -94,7 +85,7 @@ const EditController = async (req, res, next, initializeClient) => {
     }
 
     if (abortKey) {
-      logger.debug('[AskController] Cleaning up abort controller');
+      logger.debug('[EditController] Cleaning up abort controller');
       cleanupAbortController(abortKey);
       abortKey = null;
     }
@@ -208,7 +199,7 @@ const EditController = async (req, res, next, initializeClient) => {
       const finalUserMessage = reqDataContext.userMessage;
       const finalResponseMessage = { ...response };
 
-      sendMessage(res, {
+      sendEvent(res, {
         final: true,
         conversation,
         title: conversation.title,

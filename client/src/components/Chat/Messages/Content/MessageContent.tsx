@@ -8,12 +8,11 @@ import { DelayedRender } from '~/components/ui';
 import { useChatContext } from '~/Providers';
 import MarkdownLite from './MarkdownLite';
 import EditMessage from './EditMessage';
-import { useLocalize, useNewConvo } from '~/hooks';
+import { useLocalize } from '~/hooks';
 import Container from './Container';
 import Markdown from './Markdown';
 import { cn } from '~/utils';
 import store from '~/store';
-import { useNavigate } from 'react-router-dom';
 
 export const ErrorMessage = ({
   text,
@@ -23,8 +22,6 @@ export const ErrorMessage = ({
   message?: TMessage;
 }) => {
   const localize = useLocalize();
-  const navigate = useNavigate();
-  const { newConversation } = useNewConvo();
   if (text === 'Error connecting to server, try refreshing the page.') {
     console.log('error message', message);
     return (
@@ -56,26 +53,9 @@ export const ErrorMessage = ({
       </Suspense>
     );
   }
-
-  let isInputLengthError = false;
-  try {
-    const jsonString = text.match(/\{[\s\S]*\}/)?.[0];
-    if (jsonString) {
-      const json = JSON.parse(jsonString);
-      isInputLengthError = json.code === 'INPUT_LENGTH' || json.type === 'INPUT_LENGTH';
-    }
-  } catch (e) {
-    isInputLengthError = text.includes('com_error_input_length');
-  }
-
-  const handleNewChat = () => {
-    newConversation();
-    navigate('/c/new', { state: { focusChat: true } });
-  };
-
   return (
     <Container message={message}>
-      <pre
+      <div
         role="alert"
         aria-live="assertive"
         className={cn(
@@ -84,15 +64,7 @@ export const ErrorMessage = ({
         )}
       >
         <Error text={text} />
-      </pre>
-      {isInputLengthError && (
-        <button
-          onClick={handleNewChat}
-          className="mt-2 rounded-md bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600"
-        >
-          {localize('com_ui_new_chat')}
-        </button>
-      )}
+      </div>
     </Container>
   );
 };
