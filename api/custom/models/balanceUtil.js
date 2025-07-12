@@ -1,10 +1,11 @@
+const dayjs = require('dayjs');
 const mongoose = require('mongoose');
 const { SystemRoles } = require('librechat-data-provider');
 const School = require('./schema/school');
-const logger = require('~/config/winston');
-const Balance = mongoose.models.Balance;
-const User = mongoose.models.User;
-const { Transaction } = require('~/models/Transaction');
+const { logger } = require('~/config');
+const { Balance } = require('~/db/models');
+const { User } = require('~/db/models');
+const { Transaction } = require('~/db/models');
 const { calcBillPeriod } = require('./SchoolPremium');
 const { Keyv } = require('keyv');
 const keyvRedis = require('~/cache/keyvRedis');

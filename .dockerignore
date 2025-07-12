@@ -5,6 +5,9 @@
 **/.DS_Store
 **/.vscode
 **/node_modules
+**/production
+**/demo
+**/devlocal
 
 # Specific patterns to ignore
 data-node

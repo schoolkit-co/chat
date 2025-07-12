@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const { logger } = require('~/config');
 const { deleteAllUserSessions } = require('~/models');
-const User = mongoose.models.User;
+const { SystemRoles } = require('librechat-data-provider');
+const { User } = require('~/db/models');
 const { checkSchoolPremiumRegistration } = require('~/custom/models/SchoolPremium');
 
 /**

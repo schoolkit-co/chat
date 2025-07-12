@@ -2,6 +2,26 @@ const { logger } = require('~/config');
 
 const options = [
   {
+    label: 'com_ui_lm',
+    value: 'lm',
+  },
+  {
+    label: 'com_ui_student',
+    value: 'student',
+  },
+  {
+    label: 'com_ui_administrative',
+    value: 'administrative',
+  },
+  {
+    label: 'com_ui_selfdev',
+    value: 'selfdev',
+  },
+  {
+    label: 'com_ui_activities',
+    value: 'activities',
+  },
+  {
     label: 'com_ui_idea',
     value: 'idea',
   },

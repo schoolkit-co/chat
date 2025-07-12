@@ -8,6 +8,7 @@ const {
 } = require('~/server/middleware');
 const { disposeClient, clientRegistry, requestDataMap } = require('~/server/cleanup');
 const { saveMessage } = require('~/models');
+const { checkUsagePermission } = require('~/custom/models/balanceUtil');
 
 const AgentController = async (req, res, next, initializeClient, addTitle) => {
   let {
@@ -35,6 +36,15 @@ const AgentController = async (req, res, next, initializeClient, addTitle) => {
 
   const newConvo = !conversationId;
   const userId = req.user.id;
+
+  // ตรวจสอบว่าผู้ใช้มีสิทธิ์ใช้งานหรือไม่
+  const permissionResult = await checkUsagePermission(userId);
+  if (!permissionResult.enable) {
+    return res.status(403).json({
+      message: 'ไม่มีสิทธิ์ในการใช้งาน หรือระยะเวลาทดลองใช้งานของคุณหมดแล้ว',
+      type: 'error'
+    });
+  }
 
   // Create handler to avoid capturing the entire parent scope
   let getReqData = (data = {}) => {

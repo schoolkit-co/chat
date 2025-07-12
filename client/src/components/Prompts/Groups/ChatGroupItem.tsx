@@ -1,5 +1,5 @@
 import { useState, useMemo, memo } from 'react';
-import { Menu as MenuIcon, Edit as EditIcon, EarthIcon, TextSearch } from 'lucide-react';
+import { Menu as MenuIcon, Edit as EditIcon, EarthIcon, TextSearch, School } from 'lucide-react';
 import type { TPromptGroup } from 'librechat-data-provider';
 import {
   DropdownMenu,
@@ -13,13 +13,16 @@ import VariableDialog from '~/components/Prompts/Groups/VariableDialog';
 import PreviewPrompt from '~/components/Prompts/PreviewPrompt';
 import ListCard from '~/components/Prompts/Groups/ListCard';
 import { detectVariables } from '~/utils';
+import { closeSidePanel } from '~/custom/components/Prompts/Groups/VariableFormUtil';
 
 function ChatGroupItem({
   group,
   instanceProjectId,
+  onSavePromptHistory,
 }: {
   group: TPromptGroup;
   instanceProjectId?: string;
+  onSavePromptHistory: (groupId: string) => Promise<string[]|[]>;
 }) {
   const localize = useLocalize();
   const { user } = useAuthContext();
@@ -34,7 +37,7 @@ function ChatGroupItem({
   );
   const isOwner = useMemo(() => user?.id === group.author, [user, group]);
 
-  const onCardClick: React.MouseEventHandler<HTMLButtonElement> = () => {
+  const onCardClick: React.MouseEventHandler<HTMLButtonElement> = async () => {
     const text = group.productionPrompt?.prompt;
     if (!text?.trim()) {
       return;
@@ -45,7 +48,11 @@ function ChatGroupItem({
       return;
     }
 
+    if (group._id) {
+      await onSavePromptHistory(group._id);
+    }
     submitPrompt(text);
+    closeSidePanel();     //Custom
   };
 
   return (
@@ -63,6 +70,9 @@ function ChatGroupItem({
         <div className="flex flex-row items-center gap-2">
           {groupIsGlobal === true && (
             <EarthIcon className="icon-md text-green-400" aria-label="Global prompt group" />
+          )}
+          {group.schoolId && Number(user?.school) && Number(group.schoolId) === Number(user?.school) && (
+            <School className="icon-md text-blue-400" />
           )}
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
@@ -132,6 +142,7 @@ function ChatGroupItem({
         open={isVariableDialogOpen}
         onClose={() => setVariableDialogOpen(false)}
         group={group}
+        onSavePromptHistory={onSavePromptHistory}
       />
     </>
   );

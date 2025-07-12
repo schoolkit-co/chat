@@ -1,10 +1,12 @@
 const { Balance } = require('~/db/models');
+const { initializeUserBalance } = require('~/custom/controllers/balance');
 
 async function balanceController(req, res) {
-  const balanceData = await Balance.findOne(
-    { user: req.user.id },
-    '-_id tokenCredits autoRefillEnabled refillIntervalValue refillIntervalUnit lastRefill refillAmount',
-  ).lean();
+  // const balanceData = await Balance.findOne(
+  //   { user: req.user.id },
+  //   '-_id tokenCredits autoRefillEnabled refillIntervalValue refillIntervalUnit lastRefill refillAmount',
+  // ).lean();
+  const balanceData = (await initializeUserBalance(req.user.id)) ?? {};
 
   if (!balanceData) {
     return res.status(404).json({ error: 'Balance not found' });

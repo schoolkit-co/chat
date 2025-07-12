@@ -7,6 +7,7 @@ import ChatGroupItem from '~/components/Prompts/Groups/ChatGroupItem';
 import { useGetStartupConfig } from '~/data-provider';
 import { useLocalize, useHasAccess } from '~/hooks';
 import { Button, Skeleton } from '~/components/ui';
+import { RenderPromptListItems } from '../../../custom/components/Prompts/Groups/ListUtil';
 
 export default function List({
   groups = [],
@@ -60,7 +61,7 @@ export default function List({
               {localize('com_ui_nothing_found')}
             </div>
           )}
-          {groups.map((group) => {
+          {/* {groups.map((group) => {
             if (isChatRoute) {
               return (
                 <ChatGroupItem
@@ -73,7 +74,13 @@ export default function List({
             return (
               <DashGroupItem key={group._id} group={group} instanceProjectId={instanceProjectId} />
             );
-          })}
+          })} */}
+          <RenderPromptListItems 
+            groups={groups}
+            isLoading={isLoading}
+            isChatRoute={isChatRoute}
+            instanceProjectId={instanceProjectId}
+          />
         </div>
       </div>
     </div>

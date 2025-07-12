@@ -1,3 +1,47 @@
+# ข้อมูลเพิ่มเติม
+
+## วิธีอัพเดทฟีเจอร์ต้นทาง
+```bash
+git remote add upstream https://github.com/danny-avila/LibreChat.git
+```
+```bash
+git fetch upstream
+git merge upstream/main
+```
+
+## ตำแหน่งไฟล์ custom
+./api/custom/
+./client/src/custom/
+
+## ลำดับรัน live-reload dev (เปิดคาไว้ 2 หน้าต่าง)
+0. ./devpreinstall # 1st time only
+1. ./devinit
+2. ./devfront
+
+## เข้า cache ผ่าน Redis Insight (devlocal)
+Connection URL: redis://default:RedisChangeMe@127.0.0.1:6380
+
+## เข้า mongodb ผ่าน MongoDB Compass (devlocal)
+URI: mongodb://localhost:27018
+
+## build image ขึ้น repository
+./docker-build
+
+## ลำดับรัน production
+1. ./init-production
+2. ./start-services
+3. ./chat1_pull และ ./chat2_pull
+4. แก้ค่า production/gateway-compose/default.conf, 
+5. ./pull-gateway
+
+## check mongo connection (if port 27018)
+docker run -it --rm rtsp/mongosh mongosh "mongodb://host.docker.internal:27018"
+
+## check redis connection (if container name devlocal-redis-1)
+docker exec -it devlocal-redis-1 redis-cli -a RedisChangeMe ping
+
+------------------------------------------------------------------
+
 <p align="center">
   <a href="https://librechat.ai">
     <img src="client/public/assets/logo.svg" height="256">

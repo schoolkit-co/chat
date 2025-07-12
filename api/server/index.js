@@ -96,11 +96,13 @@ const startServer = async () => {
   app.use('/api/actions', routes.actions);
   app.use('/api/keys', routes.keys);
   app.use('/api/user', routes.user);
+  app.use('/api/user', routes.customUser);      // custom
   app.use('/api/search', routes.search);
   app.use('/api/edit', routes.edit);
   app.use('/api/messages', routes.messages);
   app.use('/api/convos', routes.convos);
   app.use('/api/presets', routes.presets);
+  app.use('/api/prompts', routes.promptsUtil);  // custom
   app.use('/api/prompts', routes.prompts);
   app.use('/api/categories', routes.categories);
   app.use('/api/tokenizer', routes.tokenizer);
@@ -119,6 +121,13 @@ const startServer = async () => {
   app.use('/api/memories', routes.memories);
   app.use('/api/tags', routes.tags);
   app.use('/api/mcp', routes.mcp);
+
+  // custom
+  app.use('/api/school', routes.school);
+  app.use('/api/coupon', routes.coupon);
+  app.use('/api/custom-balance', routes.customBalance);
+  app.use('/api/admin', routes.admin);
+  app.use('/api/custom-presets', routes.customPresets);
 
   // Add the error controller one more time after all routes
   app.use(errorController);

@@ -24,7 +24,7 @@ function CodeInterpreter() {
     (runCode || isPinned) && (
       <CheckboxButton
         ref={badgeTriggerRef}
-        className="max-w-fit"
+        className="max-w-fit hidden"
         checked={runCode}
         setValue={debouncedChange}
         label={localize('com_assistants_code_interpreter')}

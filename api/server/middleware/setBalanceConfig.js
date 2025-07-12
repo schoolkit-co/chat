@@ -11,7 +11,7 @@ const { Balance } = require('~/db/models');
  */
 const setBalanceConfig = async (req, res, next) => {
   try {
-    const balanceConfig = await getBalanceConfig();
+    const balanceConfig = await getBalanceConfig(req.user._id);
     if (!balanceConfig?.enabled) {
       return next();
     }

@@ -35,6 +35,7 @@ import useStepHandler from '~/hooks/SSE/useStepHandler';
 import { useAuthContext } from '~/hooks/AuthContext';
 import { MESSAGE_UPDATE_INTERVAL } from '~/common';
 import { useLiveAnnouncer } from '~/Providers';
+import { clearSchoolBillTokenCache } from '~/custom/utils/clearSchoolCache';
 
 type TSyncData = {
   sync: boolean;
@@ -533,6 +534,11 @@ export default function useEventHandlers({
       }
 
       setIsSubmitting(false);
+
+      // Clear school bill token cache after message completion
+      clearSchoolBillTokenCache().catch((error) => {
+        console.error('[finalHandler] Failed to clear school cache:', error);
+      });
     },
     [
       navigate,

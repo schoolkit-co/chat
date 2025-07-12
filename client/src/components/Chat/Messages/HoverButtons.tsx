@@ -1,5 +1,5 @@
 import React, { useState, useMemo, memo } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import type { TConversation, TMessage, TFeedback } from 'librechat-data-provider';
 import { EditIcon, Clipboard, CheckMark, ContinueIcon, RegenerateIcon } from '~/components';
 import { useGenerationsByLatest, useLocalize } from '~/hooks';
@@ -8,6 +8,7 @@ import MessageAudio from './MessageAudio';
 import Feedback from './Feedback';
 import { cn } from '~/utils';
 import store from '~/store';
+import { DownloadButtons } from '~/custom/components/Chat/ChatFormUtil';
 
 type THoverButtons = {
   isEditing: boolean;
@@ -123,6 +124,7 @@ const HoverButtons = ({
   const localize = useLocalize();
   const [isCopied, setIsCopied] = useState(false);
   const [TextToSpeech] = useRecoilState<boolean>(store.textToSpeech);
+  const usageEnabled = useRecoilValue(store.usageEnabled);
 
   const endpoint = useMemo(() => {
     if (!conversation) {
@@ -160,7 +162,7 @@ const HoverButtons = ({
   if (error === true) {
     return (
       <div className="visible flex justify-center self-end lg:justify-start">
-        {regenerateEnabled && (
+        {regenerateEnabled && usageEnabled && (
           <HoverButton
             onClick={regenerate}
             title={localize('com_ui_regenerate')}
@@ -214,7 +216,7 @@ const HoverButtons = ({
       />
 
       {/* Edit Button */}
-      {isEditableEndpoint && (
+      {isEditableEndpoint && usageEnabled && (
         <HoverButton
           id={`edit-${message.messageId}`}
           onClick={onEdit}
@@ -243,7 +245,7 @@ const HoverButtons = ({
       )}
 
       {/* Regenerate Button */}
-      {regenerateEnabled && (
+      {regenerateEnabled && usageEnabled && (
         <HoverButton
           onClick={regenerate}
           title={localize('com_ui_regenerate')}
@@ -253,8 +255,17 @@ const HoverButtons = ({
         />
       )}
 
+      {/* Download Button */}
+      {usageEnabled &&
+        <DownloadButtons
+          isCreatedByUser={isCreatedByUser}
+          isLast={isLast}
+          isSubmitting={isSubmitting}
+        />
+      }
+
       {/* Continue Button */}
-      {continueSupported && (
+      {continueSupported && usageEnabled && (
         <HoverButton
           onClick={(e) => e && handleContinue(e)}
           title={localize('com_ui_continue')}

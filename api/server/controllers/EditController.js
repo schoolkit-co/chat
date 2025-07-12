@@ -14,6 +14,7 @@ const {
 } = require('~/server/cleanup');
 const { createOnProgress } = require('~/server/utils');
 const { saveMessage } = require('~/models');
+const { checkUsagePermission } = require('~/custom/models/balanceUtil');
 
 const EditController = async (req, res, next, initializeClient) => {
   let {
@@ -54,6 +55,15 @@ const EditController = async (req, res, next, initializeClient) => {
   });
   const userMessageId = parentMessageId;
   const userId = req.user.id;
+
+  // ตรวจสอบว่าผู้ใช้มีสิทธิ์ใช้งานหรือไม่
+  const hasPermission = await checkUsagePermission(user);
+  if (!hasPermission) {
+    return res.status(403).json({
+      message: 'ไม่มีสิทธิ์ในการใช้งาน หรือระยะเวลาทดลองใช้งานของคุณหมดแล้ว',
+      type: 'error'
+    });
+  }
 
   let reqDataContext = { userMessage, userMessagePromise, responseMessageId, promptTokens };
 

@@ -1,5 +1,5 @@
-import { memo, useCallback } from 'react';
-import { useRecoilValue } from 'recoil';
+import { memo, useCallback, useEffect, useState } from 'react';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { Constants } from 'librechat-data-provider';
@@ -18,6 +18,7 @@ import Landing from './Landing';
 import Header from './Header';
 import Footer from './Footer';
 import store from '~/store';
+import axios from 'axios';
 
 function LoadingSpinner() {
   return (
@@ -34,6 +35,9 @@ function ChatView({ index = 0 }: { index?: number }) {
   const rootSubmission = useRecoilValue(store.submissionByIndex(index));
   const addedSubmission = useRecoilValue(store.submissionByIndex(index + 1));
   const centerFormOnLanding = useRecoilValue(store.centerFormOnLanding);
+  const setUsageEnabled = useSetRecoilState(store.usageEnabled);
+  const usageEnabled = useRecoilValue(store.usageEnabled);
+  const [usageWarning, setUsageWarning] = useState(false);
 
   const fileMap = useFileMapContext();
 
@@ -57,6 +61,20 @@ function ChatView({ index = 0 }: { index?: number }) {
   const methods = useForm<ChatFormValues>({
     defaultValues: { text: '' },
   });
+
+  useEffect(() => {
+    const checkUsagePermission = async () => {
+      try {
+        const { data } = await axios.get('/api/user/usage-permission', { withCredentials: true });
+        setUsageEnabled(data.enable);
+        setUsageWarning(!data.enable);
+      } catch (error) {
+        console.error('Failed to check usage permission:', error);
+      }
+    };
+    
+    checkUsagePermission();
+  }, [setUsageEnabled]);
 
   let content: JSX.Element | null | undefined;
   const isLandingPage =
@@ -97,7 +115,19 @@ function ChatView({ index = 0 }: { index?: number }) {
                       isLandingPage && 'max-w-3xl transition-all duration-200 xl:max-w-4xl',
                     )}
                   >
+                    {usageEnabled &&
                     <ChatForm index={index} />
+                    }
+                    {usageWarning &&
+                    <div 
+                      className={cn(
+                        'mx-auto flex flex-col gap-3 sm:px-2 text-center p-4 text-red-500 border border-red-300 rounded-lg',
+                        !isLandingPage && 'mb-10',
+                      )}
+                    >
+                      คุณไม่มีสิทธิ์ในการใช้งานแชท กรุณาติดต่อผู้ดูแลระบบ หรือ<a href="https://codekit.typeform.com/to/vTDsKbos" target="_blank" rel="noopener noreferrer" className="underline">กรอกฟอร์ม</a>
+                    </div>
+                    }
                     {isLandingPage ? <ConversationStarters /> : <Footer />}
                   </div>
                 </div>

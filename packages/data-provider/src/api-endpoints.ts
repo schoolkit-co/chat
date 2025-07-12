@@ -25,6 +25,8 @@ export const user = () => '/api/user';
 
 export const balance = () => '/api/balance';
 
+export const schoolBalance = () => '/api/school/balance';   // Custom
+
 export const userPlugins = () => '/api/user/plugins';
 
 export const deleteUser = () => '/api/user/delete';
@@ -247,6 +249,8 @@ export const deletePrompt = ({ _id, groupId }: { _id: string; groupId: string })
 export const getCategories = () => '/api/categories';
 
 export const getAllPromptGroups = () => `${prompts()}/all`;
+
+export const getRecentPrompts = () => `${prompts()}/recent`;     // Custom
 
 /* Roles */
 export const roles = () => '/api/roles';

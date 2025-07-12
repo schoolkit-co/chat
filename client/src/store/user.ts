@@ -11,7 +11,13 @@ const availableTools = atom<Record<string, TPlugin>>({
   default: {},
 });
 
+const usageEnabled = atom<boolean>({
+  key: 'usageEnabled',
+  default: false,
+});
+
 export default {
   user,
   availableTools,
+  usageEnabled,
 };

@@ -4,7 +4,7 @@ const School = require('~/custom/models/schema/school');
 const { logger } = require('~/config');
 const { deleteAllUserSessions, updateUser, findUser } = require('~/models');
 const { setAuthTokens } = require('~/server/services/AuthService');
-const User = mongoose.models.User;
+const { User } = require('~/db/models');
 
 const getUserCountBySchoolController = async (req, res) => {
   try {

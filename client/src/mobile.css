@@ -341,7 +341,7 @@
 
 div[role="tabpanel"][data-state="active"][data-orientation="horizontal"][aria-labelledby^="radix-"][id^="radix-"][id$="-content-preview"] {
   scrollbar-gutter: stable !important;
-  background-color: rgba(205, 205, 205, 0.66) !important;
+  /* background-color: rgba(205, 205, 205, 0.66) !important; */
 }
 
 div[role="tabpanel"][data-state="active"][data-orientation="horizontal"][aria-labelledby^="radix-"][id^="radix-"][id$="-content-preview"]::-webkit-scrollbar {

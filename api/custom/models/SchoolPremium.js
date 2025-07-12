@@ -1,9 +1,9 @@
 const dayjs = require('dayjs');
 const mongoose = require('mongoose');
-const School = require('./schema/school');
-const logger = require('~/config/winston');
+const School = require('~/custom/models/schema/school');
+const { logger } = require('~/config');
+const { User } = require('~/db/models');
 const { SystemRoles } = require('librechat-data-provider');
-const User = mongoose.models.User;
 
 /**
  * คำนวณรอบบิลจาก expiredDate ของโรงเรียน

@@ -2,6 +2,7 @@ import Cookies from 'js-cookie';
 import { atomWithLocalStorage } from './utils';
 
 const defaultLang = () => {
+  return 'th-TH';
   const userLang = navigator.language || navigator.languages[0];
   return Cookies.get('lang') || localStorage.getItem('lang') || userLang;
 };
