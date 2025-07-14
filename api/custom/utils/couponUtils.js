@@ -1,5 +1,5 @@
 const { logger } = require('~/config');
-const CouponLog = require('~/custom/models/CouponLog');
+const { CouponLog } = require('~/custom/models/CouponLog');
 
 /**
  * Deletes coupon logs associated with a given coupon ID.

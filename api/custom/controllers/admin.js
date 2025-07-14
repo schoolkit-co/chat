@@ -363,7 +363,7 @@ const getUserBalanceController = async (req, res) => {
       return res.status(400).json({ message: 'User ID is required' });
     }
     
-    const Balance = require('~/models/Balance');
+    const { Balance } = require('~/db/models');
     const balance = await Balance.findOne({ user: userId }).lean();
     
     if (!balance) {
@@ -409,7 +409,7 @@ const updateUserSuperCreditController = async (req, res) => {
     }
 
     setNewBalance: {
-      const Balance = require('~/models/Balance');
+      const { Balance } = require('~/db/models');
       let balance = await Balance.findOne({ user: userId });
       if (balance) {
         balance.tokenCredits = superCredit ? 900000000 : (parseInt(process.env.START_BALANCE, 10) || 0);

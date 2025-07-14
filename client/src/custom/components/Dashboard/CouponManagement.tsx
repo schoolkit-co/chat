@@ -168,6 +168,7 @@ const CouponManagement: React.FC = () => {
       try {
         await axios.delete(`/api/coupon/${couponCode}`);
         fetchCoupons(); // ดึงข้อมูลใหม่
+        setError(null);
       } catch (err) {
         console.error('เกิดข้อผิดพลาดในการลบคูปอง:', err);
         setError('ไม่สามารถลบคูปองได้ กรุณาลองใหม่อีกครั้ง');
