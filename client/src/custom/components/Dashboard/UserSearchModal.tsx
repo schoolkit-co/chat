@@ -5,6 +5,8 @@ import { useRecoilValue } from 'recoil';
 import { schoolMapAtom } from '~/custom/store/school';
 import { updateSuperCreditStatus } from '~/custom/utils/userUtils';
 import { cn } from '~/utils';
+import { useImpersonation } from '~/hooks/useImpersonation';
+import { useAuthContext } from '~/hooks/AuthContext';
 
 // User search result interface
 interface UserSearchResult {
@@ -48,6 +50,8 @@ const UserSearchModal: React.FC<{
   const [loadingBalance, setLoadingBalance] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [toggleSuperCreditLoading, setToggleSuperCreditLoading] = useState(false);
+  const { startImpersonation, isImpersonating } = useImpersonation();
+  const { user } = useAuthContext();
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Get school map from Recoil
@@ -171,10 +175,12 @@ const UserSearchModal: React.FC<{
       });
       
       // If successful, redirect to the chat page
-      if (response.data.token && response.data.user) {
-        // Store the information that this is an impersonated session (optional)
-        localStorage.setItem('impersonated', 'true');
-        localStorage.setItem('impersonatedBy', response.data.impersonatedBy || 'admin');
+      if (response.data.impersonated) {
+        // Store the impersonation state in recoil atom
+        startImpersonation(
+          response.data.impersonatedBy || 'admin',
+          response.data.user.email || selectedUser.email
+        );
         
         // Reload the page to apply the new authentication
         window.location.href = '/c/new';
@@ -345,17 +351,17 @@ const UserSearchModal: React.FC<{
                       }
                     </button>
                   </div>
-                  
-                  {/* ย้ายปุ่มเข้าสู่ระบบแทนมาไว้ด้านล่าง */}
-                  <div className="mt-2">
-                    <button
-                      onClick={handleImpersonateUser}
-                      className="px-4 py-2 rounded-md text-white bg-purple-500 hover:bg-purple-600 flex items-center gap-1"
-                    >
-                      <UserCog className="h-4 w-4" />
-                      เข้าสู่ระบบแทน
-                    </button>
-                  </div>
+                  {!isImpersonating && selectedUser.email !== user?.email && (
+                    <div className="mt-2">
+                      <button
+                        onClick={handleImpersonateUser}
+                        className="px-4 py-2 rounded-md text-white bg-purple-500 hover:bg-purple-600 flex items-center gap-1"
+                      >
+                        <UserCog className="h-4 w-4" />
+                        เข้าสู่ระบบแทน
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div>

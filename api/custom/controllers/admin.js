@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { SystemRoles } = require('librechat-data-provider');
 const School = require('~/custom/models/schema/school');
 const { logger } = require('~/config');
-const { deleteAllUserSessions, updateUser, findUser } = require('~/models');
+const { deleteAllUserSessions, updateUser, findUser, findSession, getUserById, deleteSession } = require('~/models');
 const { setAuthTokens } = require('~/server/services/AuthService');
 const { User } = require('~/db/models');
 
@@ -442,12 +442,8 @@ const updateUserSuperCreditController = async (req, res) => {
  * Bypasses all authentication checks (password, 2FA, ban)
  */
 const adminImpersonateController = async (req, res) => {
+  // check role at checkAdmin middleware
   try {
-    // Check if the requesting user is an admin (should already be checked by middleware but verify again)
-    if (req.user.role !== 'ADMIN') {
-      return res.status(403).json({ message: 'Forbidden: Admin privileges required' });
-    }
-
     const { email } = req.body;
     
     if (!email) {
@@ -464,8 +460,8 @@ const adminImpersonateController = async (req, res) => {
     // Log the impersonation attempt for security audit
     logger.warn(`[adminImpersonateController] Admin ${req.user.email} (${req.user._id}) impersonating user ${targetUser.email} (${targetUser._id})`);
 
-    // Set auth tokens as the target user
-    const token = await setAuthTokens(targetUser._id, res);
+    // Set auth tokens as the target user, but save admin userId in session
+    const token = await setAuthTokens(targetUser._id, res, null, req.user._id);
 
     // Prepare sanitized user data to return
     const { password: _p, totpSecret: _t, __v, ...user } = targetUser;
@@ -479,6 +475,67 @@ const adminImpersonateController = async (req, res) => {
     });
   } catch (err) {
     logger.error('[adminImpersonateController]', err);
+    return res.status(500).json({ message: 'Something went wrong' });
+  }
+};
+
+/**
+ * Admin end impersonation controller
+ * Reverts admin back to their original session
+ */
+const endImpersonateController = async (req, res, next) => {
+  try {
+    // Get the current session from the request
+    const cookies = require('cookie');
+    const refreshToken = req.headers.cookie ? cookies.parse(req.headers.cookie).refreshToken : null;
+    
+    if (!refreshToken) {
+      return res.status(400).json({ message: 'No active session found' });
+    }
+
+    // Find the current session
+    const currentSession = await findSession({ refreshToken });
+    
+    if (!currentSession) {
+      return res.status(404).json({ message: 'Session not found' });
+    }
+
+    // Check if this is an impersonated session
+    if (!currentSession.impersonatedBy) {
+      await next();
+      return;
+      // return res.status(400).json({ message: 'Not currently impersonating' });
+    }
+
+    // Get the admin user who was doing the impersonation
+    const adminUser = await getUserById(currentSession.impersonatedBy);
+    
+    if (!adminUser) {
+      await next();
+      return;
+      // return res.status(404).json({ message: 'Admin user not found' });
+    }
+
+    // Delete the current impersonated session
+    await deleteSession({ sessionId: currentSession._id });
+
+    // Create a new session for the admin
+    const token = await setAuthTokens(adminUser._id, res);
+
+    // Log the end of impersonation
+    logger.warn(`[endImpersonateController] Admin ${adminUser.email} (${adminUser._id}) ended impersonation`);
+
+    // Prepare sanitized admin user data to return
+    const { password: _p, totpSecret: _t, __v, ...user } = adminUser;
+    user.id = user._id.toString();
+
+    return res.status(200).send({ 
+      token, 
+      user,
+      message: 'Successfully ended impersonation' 
+    });
+  } catch (err) {
+    logger.error('[endImpersonateController]', err);
     return res.status(500).json({ message: 'Something went wrong' });
   }
 };
@@ -498,4 +555,5 @@ module.exports = {
   getUserBalanceController,
   updateUserSuperCreditController,
   adminImpersonateController,
+  endImpersonateController,
 };

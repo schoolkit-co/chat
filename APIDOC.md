@@ -634,11 +634,13 @@ This document provides a comprehensive list of all API endpoints, their associat
 - **Controllers**:
   - `api/custom/controllers/admin`
     - `adminImpersonateController`
+    - `endImpersonateController`
 - **Middleware**:
   - `api/server/middleware/requireJwtAuth.js`
   - `api/server/middleware/checkAdmin.js`
 - **Endpoints**:
   - POST `/api/admin/impersonate` - สลับตัวตนเป็นผู้ใช้คนอื่น (admin เท่านั้น)
+  - POST `/api/admin/end-impersonate` - สิ้นสุดการสลับตัวตนกลับไปเป็น admin เดิม
 
 ### `/api/custom-presets`
 - **Route**: `api/custom/routes/presets.js`

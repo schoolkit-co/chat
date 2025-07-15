@@ -1,7 +1,7 @@
 import { useState, memo } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import * as Select from '@ariakit/react/select';
-import { FileText, LogOut, RefreshCw, Ticket } from 'lucide-react';
+import { FileText, LogOut, RefreshCw, Ticket, UserX } from 'lucide-react';
 import { LinkIcon, GearIcon, DropdownMenuSeparator } from '~/components';
 import { useGetStartupConfig, useGetUserBalance } from '~/data-provider';
 import FilesView from '~/components/Chat/Input/Files/FilesView';
@@ -16,10 +16,11 @@ import CouponRedeemModal from '~/custom/components/Nav/CouponRedeemModal';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { CouponMenuItem } from '~/custom/components/Nav/AccountSettingsUtil';
+import { useImpersonation } from '~/hooks/useImpersonation';
 
 function AccountSettings() {
   const localize = useLocalize();
-  const { user, isAuthenticated, logout } = useAuthContext();
+  const { user, isAuthenticated, logout, setUserContext } = useAuthContext();
   const { data: startupConfig } = useGetStartupConfig();
   const balanceQuery = useGetUserBalance({
     enabled: !!isAuthenticated && startupConfig?.balance?.enabled,
@@ -29,6 +30,8 @@ function AccountSettings() {
   const [refreshing, setRefreshing] = useState(false);
   const [showCouponModal, setShowCouponModal] = useState(false);
   const queriesEnabled = useRecoilValue(store.queriesEnabled);
+  const { isImpersonating, endImpersonation } = useImpersonation();
+  const [isEndingImpersonation, setIsEndingImpersonation] = useState(false);
 
   // School balance query with auto-refresh every minute
   const schoolBalanceQuery = useQuery({
@@ -67,6 +70,33 @@ function AccountSettings() {
       balanceQuery.refetch();
     } finally {
       setTimeout(() => setRefreshing(false), 500);
+    }
+  };
+
+  const handleEndImpersonation = async () => {
+    if (isEndingImpersonation) return;
+    
+    setIsEndingImpersonation(true);
+    try {
+      const response = await axios.post('/api/admin/end-impersonate');
+      
+      if (response.data.token && response.data.user) {
+        // Clear impersonation state
+        endImpersonation();
+        
+        // Update auth context with admin user
+        setUserContext({
+          token: response.data.token,
+          isAuthenticated: true,
+          user: response.data.user,
+          redirect: undefined,
+        });
+        window.location.reload();
+      }
+    } catch (err: any) {
+      console.error('Error ending impersonation:', err);
+    } finally {
+      setIsEndingImpersonation(false);
     }
   };
 
@@ -129,7 +159,7 @@ function AccountSettings() {
             {/* <div className="text-token-text-secondary ml-3 mr-2 py-2 text-sm" role="note"> */}
             <div className="ml-3 mr-2 py-2 text-sm text-token-text-secondary" role="note">
               <span>
-                ยอดเงินคงเหลือโรงเรียน: <span className={parseFloat(schoolBalanceQuery.data.remainingBalance) <= 0 ? 'text-red-500' : ''}>{parseFloat(schoolBalanceQuery.data.remainingBalance).toFixed(2).toLocaleString()}</span>
+                ยอดเงินคงเหลือโรงเรียน: <span className={parseFloat(schoolBalanceQuery.data.remainingBalance) <= 0 ? 'text-red-500' : ''}>{parseFloat(schoolBalanceQuery.data.remainingBalance).toFixed(2)}</span>
               </span>
             </div>
             <DropdownMenuSeparator />
@@ -185,9 +215,26 @@ function AccountSettings() {
           {localize('com_nav_settings')}
         </Select.SelectItem>
         <DropdownMenuSeparator />
+        {isImpersonating && (
+          <Select.SelectItem
+            aria-selected={true}
+            onClick={handleEndImpersonation}
+            value="end-impersonation"
+            className="select-item text-sm"
+          >
+            <UserX className="icon-md" />
+            {isEndingImpersonation ? 'กำลังสิ้นสุด...' : 'สิ้นสุดการแสดงตัวแทน'}
+          </Select.SelectItem>
+        )}
         <Select.SelectItem
           aria-selected={true}
-          onClick={() => logout()}
+          onClick={() => {
+            // Clear impersonation state when logging out
+            if (isImpersonating) {
+              endImpersonation();
+            }
+            logout();
+          }}
           value="logout"
           className="select-item text-sm"
         >

@@ -16,6 +16,11 @@ const sessionSchema: Schema<ISession> = new Schema({
     ref: 'User',
     required: true,
   },
+  impersonatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false,
+  },
 });
 
 export default sessionSchema;

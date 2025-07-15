@@ -4,10 +4,12 @@ export interface ISession extends Document {
   refreshTokenHash: string;
   expiration: Date;
   user: Types.ObjectId;
+  impersonatedBy?: Types.ObjectId;
 }
 
 export interface CreateSessionOptions {
   expiration?: Date;
+  impersonatedBy?: Types.ObjectId;
 }
 
 export interface SessionSearchParams {

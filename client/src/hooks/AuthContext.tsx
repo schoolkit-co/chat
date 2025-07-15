@@ -23,6 +23,7 @@ import {
 import { TAuthConfig, TUserContext, TAuthContext, TResError } from '~/common';
 import useTimeout from './useTimeout';
 import store from '~/store';
+import { useImpersonation } from './useImpersonation';
 
 const AuthContext = createContext<TAuthContext | undefined>(undefined);
 
@@ -38,6 +39,7 @@ const AuthContextProvider = ({
   const [error, setError] = useState<string | undefined>(undefined);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const logoutRedirectRef = useRef<string | undefined>(undefined);
+  const { isImpersonating, endImpersonation } = useImpersonation();
 
   const { data: userRole = null } = useGetRole(SystemRoles.USER, {
     enabled: !!(isAuthenticated && (user?.role ?? '')),
@@ -120,9 +122,15 @@ const AuthContextProvider = ({
       if (redirect) {
         logoutRedirectRef.current = redirect;
       }
+      
+      // Clear impersonation state when logging out
+      if (isImpersonating) {
+        endImpersonation();
+      }
+      
       logoutUser.mutate(undefined);
     },
-    [logoutUser],
+    [logoutUser, isImpersonating, endImpersonation],
   );
 
   const userQuery = useGetUserQuery({ enabled: !!(token ?? '') });
@@ -212,6 +220,7 @@ const AuthContextProvider = ({
       login,
       logout,
       setError,
+      setUserContext,
       roles: {
         [SystemRoles.USER]: userRole,
         [SystemRoles.ADMIN]: adminRole,
@@ -219,7 +228,7 @@ const AuthContextProvider = ({
       isAuthenticated,
     }),
 
-    [user, error, isAuthenticated, token, userRole, adminRole],
+    [user, error, isAuthenticated, token, userRole, adminRole, setUserContext],
   );
 
   return <AuthContext.Provider value={memoedValue}>{children}</AuthContext.Provider>;

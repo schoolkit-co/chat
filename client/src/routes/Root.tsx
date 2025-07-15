@@ -19,6 +19,7 @@ import { useUserTermsQuery, useGetStartupConfig } from '~/data-provider';
 import { Nav, MobileNav } from '~/components/Nav';
 import { useHealthCheck } from '~/data-provider';
 import { Banner } from '~/components/Banners';
+import ImpersonationBanner from '~/custom/components/ImpersonationBanner';
 
 export default function Root() {
   const [showTerms, setShowTerms] = useState(false);
@@ -69,6 +70,7 @@ export default function Root() {
         <AssistantsMapContext.Provider value={assistantsMap}>
           <AgentsMapContext.Provider value={agentsMap}>
             <Banner onHeightChange={setBannerHeight} />
+            <ImpersonationBanner />
             <div className="flex" style={{ height: `calc(100dvh - ${bannerHeight}px)` }}>
               <div className="relative z-0 flex h-full w-full overflow-hidden">
                 <Nav navVisible={navVisible} setNavVisible={setNavVisible} />

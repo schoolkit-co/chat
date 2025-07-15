@@ -46,6 +46,12 @@ const logoutUser = async (req, refreshToken) => {
     const session = await findSession({ userId: userId, refreshToken });
 
     if (session) {
+      // Check if this is an impersonation session
+      if (session.impersonatedBy) {
+        logger.warn(`[logoutUser] Impersonation session ended via logout. Admin ${session.impersonatedBy} was impersonating user ${userId}`);
+        // Additional cleanup for impersonation if needed
+      }
+      
       try {
         await deleteSession({ sessionId: session._id });
       } catch (deleteErr) {
@@ -378,9 +384,10 @@ const resetPassword = async (userId, token, password) => {
  * @param {String | ObjectId} userId
  * @param {Object} res
  * @param {String} sessionId
+ * @param {String | ObjectId} impersonatedBy - Admin user ID when impersonating
  * @returns
  */
-const setAuthTokens = async (userId, res, sessionId = null) => {
+const setAuthTokens = async (userId, res, sessionId = null, impersonatedBy = null) => {
   try {
     const user = await getUserById(userId);
     const token = await generateToken(user);
@@ -394,7 +401,7 @@ const setAuthTokens = async (userId, res, sessionId = null) => {
       refreshTokenExpires = session.expiration.getTime();
       refreshToken = await generateRefreshToken(session);
     } else {
-      const result = await createSession(userId);
+      const result = await createSession(userId, { impersonatedBy });
       session = result.session;
       refreshToken = result.refreshToken;
       refreshTokenExpires = session.expiration.getTime();

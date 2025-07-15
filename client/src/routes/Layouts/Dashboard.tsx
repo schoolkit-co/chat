@@ -4,6 +4,7 @@ import { QueryKeys } from 'librechat-data-provider';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext, usePreviousLocation } from '~/hooks';
 import { DashboardContext } from '~/Providers';
+import ImpersonationBanner from '~/custom/components/ImpersonationBanner';
 import store from '~/store';
 
 export default function DashboardRoute() {
@@ -29,6 +30,7 @@ export default function DashboardRoute() {
   return (
     <DashboardContext.Provider value={{ prevLocationPath }}>
       <div className="h-screen w-full">
+        <ImpersonationBanner />
         <Outlet />
       </div>
     </DashboardContext.Provider>

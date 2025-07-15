@@ -33,6 +33,7 @@ export function createSessionMethods(mongoose: typeof import('mongoose')) {
       const currentSession = new Session({
         user: userId,
         expiration: options.expiration || new Date(Date.now() + expires),
+        impersonatedBy: options.impersonatedBy,
       });
       const refreshToken = await generateRefreshToken(currentSession);
 
