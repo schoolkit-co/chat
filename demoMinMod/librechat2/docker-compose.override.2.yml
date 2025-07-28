@@ -38,7 +38,7 @@ services:
 # LOCAL BUILD
 #   api:
     container_name: LibreChat2
-    image: gcr.codekit.in.th/schoolkit/chat:1.0
+    image: gcr.codekit.in.th/schoolkit/chat:mm1.0
     build:
       context: ./../..
       target: node
