@@ -2,6 +2,7 @@ const { logger } = require('@librechat/data-schemas');
 const { getBalanceConfig } = require('~/server/services/Config');
 const { getMultiplier, getCacheMultiplier } = require('./tx');
 const { Transaction, Balance } = require('~/db/models');
+const { addSchoolToTransaction } = require('../custom/models/transactionUtil');
 
 const cancelRate = 1.15;
 
@@ -194,6 +195,8 @@ async function createTransaction(txData) {
     return;
   }
 
+  await addSchoolToTransaction(txData);
+
   const transaction = new Transaction(txData);
   transaction.endpointTokenConfig = txData.endpointTokenConfig;
   calculateTokenValue(transaction);
@@ -224,6 +227,8 @@ async function createTransaction(txData) {
  * @param {txData} txData - Transaction data.
  */
 async function createStructuredTransaction(txData) {
+  await addSchoolToTransaction(txData);
+
   const transaction = new Transaction({
     ...txData,
     endpointTokenConfig: txData.endpointTokenConfig,

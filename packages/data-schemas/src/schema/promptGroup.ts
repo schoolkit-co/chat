@@ -13,6 +13,7 @@ export interface IPromptGroup {
   command?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  schoolId?: number;  // Custom
 }
 
 export interface IPromptGroupDocument extends IPromptGroup, Document {}
@@ -58,6 +59,11 @@ const promptGroupSchema = new Schema<IPromptGroupDocument>(
     authorName: {
       type: String,
       required: true,
+    },
+    schoolId: {
+      type: Number,
+      index: true,
+      default: null,
     },
     command: {
       type: String,

@@ -33,6 +33,9 @@ export interface IUser extends Document {
   personalization?: {
     memories?: boolean;
   };
+  school?: number;
+  schoolAdmin?: boolean;
+  superCredit?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

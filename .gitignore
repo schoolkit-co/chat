@@ -96,8 +96,8 @@ junit.xml
 **/venv/
 
 # docker override file
-docker-compose.override.yaml
-docker-compose.override.yml
+# docker-compose.override.yaml
+# docker-compose.override.yml
 
 # meilisearch
 meilisearch
@@ -111,7 +111,7 @@ auth.json
 !client/src/components/Nav/SettingsTabs/Data/
 
 # User uploads
-uploads/
+# uploads/
 
 # owner
 release/
@@ -134,3 +134,10 @@ helm/**/.values.yaml
 /.openai/
 /.tabnine/
 /.codeium
+
+# redis
+# redis/
+
+# vscode
+.vscode/
+*:Zone.Identifier

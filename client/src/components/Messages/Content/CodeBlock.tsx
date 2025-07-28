@@ -11,6 +11,7 @@ import Clipboard from '~/components/svg/Clipboard';
 import CheckMark from '~/components/svg/CheckMark';
 import useLocalize from '~/hooks/useLocalize';
 import cn from '~/utils/cn';
+import { AnalyzeCodeToggle } from '~/custom/components/Messages/CodeUtil';
 
 type CodeBlockProps = Pick<
   CodeBarProps,
@@ -31,7 +32,7 @@ const CodeBar: React.FC<CodeBarProps> = React.memo(
           <InfoIcon className="ml-auto flex h-4 w-4 gap-2 text-white/50" />
         ) : (
           <div className="flex items-center justify-center gap-4">
-            {allowExecution === true && (
+            {false && allowExecution === true && (
               <RunCode lang={lang} codeRef={codeRef} blockIndex={blockIndex} />
             )}
             <button
@@ -119,6 +120,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
   const language = isNonCode ? 'json' : lang;
 
   return (
+    <AnalyzeCodeToggle codeRef={codeRef} lang={lang}>
     <div className="w-full rounded-md bg-gray-900 text-xs text-white/80">
       <CodeBar
         lang={lang}
@@ -167,6 +169,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
         </>
       )}
     </div>
+    </AnalyzeCodeToggle>
   );
 };
 

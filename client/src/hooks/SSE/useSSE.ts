@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { v4 } from 'uuid';
 import { SSE } from 'sse.js';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import {
   request,
   Constants,
@@ -17,6 +17,7 @@ import { useGenTitleMutation, useGetStartupConfig, useGetUserBalance } from '~/d
 import { useAuthContext } from '~/hooks/AuthContext';
 import useEventHandlers from './useEventHandlers';
 import store from '~/store';
+import { codeBlockAnalysisStatusState } from '~/store/temporary';
 
 const clearDraft = (conversationId?: string | null) => {
   if (conversationId) {
@@ -88,6 +89,7 @@ export default function useSSE(
   const balanceQuery = useGetUserBalance({
     enabled: !!isAuthenticated && startupConfig?.balance?.enabled,
   });
+  const [analysisStatus, setAnalysisStatus] = useRecoilState(codeBlockAnalysisStatusState);
 
   useEffect(() => {
     if (submission == null || Object.keys(submission).length === 0) {
@@ -125,6 +127,10 @@ export default function useSSE(
         finalHandler(data, { ...submission, plugins } as EventSubmission);
         (startupConfig?.balance?.enabled ?? false) && balanceQuery.refetch();
         console.log('final', data);
+
+        // เมื่อเสร็จสิ้นคำตอบ กำหนดให้สถานะเป็น analyzed
+        setAnalysisStatus('analyzed');
+
         return;
       } else if (data.created != null) {
         const runId = v4();
@@ -169,6 +175,9 @@ export default function useSSE(
     sse.addEventListener('open', () => {
       setAbortScroll(false);
       console.log('connection is opened');
+
+      // กำหนดสถานะเป็น analyzing ตอนเริ่มต้นการตอบคำถาม
+      setAnalysisStatus('analyzing');
     });
 
     sse.addEventListener('cancel', async () => {

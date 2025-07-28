@@ -687,7 +687,7 @@ export function createPrompt(payload: t.TCreatePrompt): Promise<t.TCreatePromptR
 export function updatePromptGroup(
   variables: t.TUpdatePromptGroupVariables,
 ): Promise<t.TUpdatePromptGroupResponse> {
-  return request.patch(endpoints.updatePromptGroup(variables.id), variables.payload);
+  return request.patch(variables.endpoint || endpoints.updatePromptGroup(variables.id), variables.payload);
 }
 
 export function deletePrompt(payload: t.TDeletePromptVariables): Promise<t.TDeletePromptResponse> {
@@ -852,3 +852,12 @@ export const createMemory = (data: {
 }): Promise<{ created: boolean; memory: q.TUserMemory }> => {
   return request.post(endpoints.memories(), data);
 };
+
+// Custom
+// export function getSchoolBalance(): Promise<string> {
+//   return request.get(endpoints.schoolBalance());
+// }
+
+// export function getRecentPrompts(): Promise<string[]> {
+//   return request.get(endpoints.getRecentPrompts());
+// }

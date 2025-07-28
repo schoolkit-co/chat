@@ -6,11 +6,10 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="description" content="LibreChat - An open source chat application with support for multiple AI models" />
-    <title>LibreChat</title>
+    <title>SchoolKit Chat</title>
     <link rel="shortcut icon" href="#" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-sk-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-sk-16x16.png" />
     <link rel="apple-touch-icon" href="/assets/apple-touch-icon-180x180.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
     <style>
@@ -55,4 +54,186 @@
       <div id="loading-container"></div>
     </div>
   </body>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.28.0/full/pyodide.js"></script>
+  <script>
+    let codekitBackend = 'https://codekit.co';
+    if (window.location.hostname === 'localhost') {
+      // codekitBackend = 'http://localhost';
+      codekitBackend = 'https://dev.codekit.co';
+    }
+    async function downloadDocx(content = "") {
+      if (!content) {
+        console.error('downloadDocx: no content');
+        alert('downloadDocx: no content');
+        return;
+      }
+
+      let pyodide = await loadPyodide();
+      await pyodide.loadPackage(["micropip", "pandas", "lxml", "typing-extensions"]);
+
+      try {
+        await pyodide.runPythonAsync(`
+import micropip
+await micropip.install("${codekitBackend}/compiler/pyodide/python_docx-1.1.2-py3-none-any.whl")
+await micropip.install("${codekitBackend}/compiler/pyodide/markdown-3.8-py3-none-any.whl")
+await micropip.install("${codekitBackend}/compiler/pyodide/beautifulsoup4-4.13.4-py3-none-any.whl")
+        `);
+
+        let exampleCode = `
+from docx import Document
+from docx.shared import Pt
+from docx.oxml.ns import qn
+
+# สร้างเอกสาร Word ใหม่
+doc = Document()
+doc.add_heading('ตารางเปรียบเทียบข้อดีและข้อเสียของเด็กสายวิทย์และสายศิลป์', level=1)
+
+# กำหนดฟอนต์เริ่มต้นของเอกสาร
+style = doc.styles['Normal']
+style.font.name = 'TH SarabunPSK'
+style.element.rPr.rFonts.set(qn('w:eastAsia'), 'TH SarabunPSK')
+style.font.size = Pt(16)
+
+# สร้างตาราง
+table = doc.add_table(rows=6, cols=5)
+table.style = 'Table Grid'
+
+# กำหนดหัวข้อของตาราง
+headers = ["ประเภท", "ข้อดีของสายวิทย์", "ข้อเสียของสายวิทย์", "ข้อดีของสายศิลป์", "ข้อเสียของสายศิลป์"]
+for i, header in enumerate(headers):
+    cell = table.cell(0, i)
+    cell.text = header
+    for paragraph in cell.paragraphs:
+        for run in paragraph.runs:
+            run.font.name = 'TH SarabunPSK'
+            run._element.rPr.rFonts.set(qn('w:eastAsia'), 'TH SarabunPSK')
+            run.font.size = Pt(16)
+
+# เพิ่มข้อมูลลงในตาราง
+data = [
+    ["โอกาสในอนาคต", "มีโอกาสเรียนต่อในสาขาวิทยาศาสตร์ วิศวกรรม แพทย์ และเทคโนโลยี ซึ่งมีโอกาสในการทำงานสูง",
+     "ตัวเลือกอาชีพอาจจำกัดอยู่ในสาย STEM", "มีความยืดหยุ่นสูง สามารถเลือกเรียนต่อได้หลากหลาย",
+     "บางอาชีพมีการแข่งขันสูงและอาจมีโอกาสในการทำงานที่จำกัดกว่าสายวิทย์"],
+
+    ["การเรียน", "ได้พัฒนาทักษะการคิดวิเคราะห์และเหตุผลทางคณิตศาสตร์และวิทยาศาสตร์",
+     "การเรียนอาจหนัก มีวิชาที่ซับซ้อน", "เน้นทักษะด้านภาษาศาสตร์ การสื่อสาร และความคิดสร้างสรรค์",
+     "ต้องพึ่งพาทักษะการเขียน การอ่าน และความสามารถทางภาษามากขึ้น"],
+
+    ["ทักษะชีวิต", "ฝึกให้มีความเป็นเหตุเป็นผล และมีทักษะการแก้ปัญหาอย่างเป็นระบบ",
+     "อาจขาดความยืดหยุ่นในการคิดสร้างสรรค์", "มีความคิดสร้างสรรค์สูง มีความสามารถในการคิดนอกกรอบ",
+     "อาจขาดทักษะด้านการคำนวณเชิงตัวเลขและตรรกะที่ซับซ้อน"],
+
+    ["โอกาสทำงาน", "มีแนวโน้มได้เงินเดือนสูงในสายงานวิศวกรรม แพทย์ และเทคโนโลยี",
+     "อาจต้องเรียนต่อระดับสูงขึ้นเพื่อให้ได้งานที่มีความมั่นคง", "มีโอกาสในการทำงานที่หลากหลาย",
+     "บางสายอาชีพเงินเดือนเริ่มต้นอาจต่ำกว่า และอาจต้องพึ่งพาความสามารถเฉพาะทาง"],
+
+    ["ความท้าทาย", "การเรียนหนัก ต้องใช้ความขยันและความอดทนสูง",
+     "หากไม่ถนัดด้านคำนวณหรือทฤษฎี อาจเจออุปสรรคในการเรียน", "มีโอกาสแสดงออกทางความคิดและอารมณ์มากขึ้น",
+     "อาจถูกมองว่าขาดโอกาสทางอาชีพที่มั่นคงเท่าสายวิทย์"]
+]
+
+# เติมข้อมูลลงในตาราง
+for row_idx, row_data in enumerate(data, start=1):
+    for col_idx, value in enumerate(row_data):
+        cell = table.cell(row_idx, col_idx)
+        cell.text = value
+
+        # ตั้งค่าฟอนต์ของข้อความในเซลล์
+        for paragraph in cell.paragraphs:
+            for run in paragraph.runs:
+                run.font.name = 'TH SarabunPSK'
+                run._element.rPr.rFonts.set(qn('w:eastAsia'), 'TH SarabunPSK')
+                run.font.size = Pt(16)
+
+# บันทึกไฟล์
+file_path = "word.docx"
+doc.save(file_path)
+
+# ส่งไฟล์ให้ผู้ใช้ดาวน์โหลด
+file_path
+`;
+        await pyodide.runPythonAsync(content === 'debug' ? exampleCode : content);
+
+        // Read the file as a UTF-8 string
+        let fileContent = await pyodide.FS.readFile('word.docx');
+
+        // Create a Blob from the file content
+        const blob = new Blob([fileContent], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+        // Create an object URL for the Blob
+        const url = URL.createObjectURL(blob);
+
+        // Create a temporary link element
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'word.docx';  // This will be the filename in the download
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        // Clean up the object URL after the download
+        URL.revokeObjectURL(url);
+      } catch(err) {
+        console.error(err);
+        alert(err);
+      }
+    }
+
+    async function downloadXlsx(content = "") {
+      if (!content) {
+        console.error('downloadXlsx: no content');
+        alert('downloadXlsx: no content');
+        return;
+      }
+
+      let pyodide = await loadPyodide();
+      await pyodide.loadPackage(["micropip", "pandas"]);
+
+      try {
+        await pyodide.runPythonAsync(`
+import micropip
+await micropip.install("${codekitBackend}/compiler/pyodide/openpyxl-3.0.10-py2.py3-none-any.whl")
+        `);
+
+        let exampleCode = `
+import pandas as pd
+
+# Data to be saved to Excel
+data = [
+    ["no", "name", "lastname"],
+    [1, "aa", "bb"],
+    [2, "ทดสอบ", "cc"]
+]
+
+# Create a pandas DataFrame from the data
+df = pd.DataFrame(data[1:], columns=data[0])
+
+# Save the DataFrame to an Excel file
+df.to_excel("output.xlsx", index=False)
+
+print("Excel file saved successfully.")
+`;
+        await pyodide.runPythonAsync(content === 'debug' ? exampleCode : content);
+
+        // Read the file as a UTF-8 string
+        let fileContent = await pyodide.FS.readFile('output.xlsx');
+
+        // Create a Blob from the file content
+        const blob = new Blob([fileContent], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        // Create an object URL for the Blob
+        const url = URL.createObjectURL(blob);
+
+        // Create a temporary link element
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'output.xlsx';  // This will be the filename in the download
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        // Clean up the object URL after the download
+        URL.revokeObjectURL(url);
+      } catch(err) {
+        console.error(err);
+        alert(err);
+      }
+    }
+  </script>
 </html>

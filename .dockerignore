@@ -5,6 +5,10 @@
 **/.DS_Store
 **/.vscode
 **/node_modules
+**/production
+**/demo
+**/demoMinMod
+**/devlocal
 
 # Specific patterns to ignore
 data-node

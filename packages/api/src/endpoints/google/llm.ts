@@ -30,6 +30,11 @@ function getThresholdMapping(model: string) {
   return (value: string) => value;
 }
 
+function notSupportsThinking(model: string): boolean {
+  // Gemini 2.0 series does not support thinking mode
+  return /gemini-2\.0/i.test(model);
+}
+
 export function getSafetySettings(
   model?: string,
 ): Array<{ category: string; threshold: string }> | undefined {
@@ -144,8 +149,10 @@ export function getGoogleConfig(
     );
   }
 
+  // Check if the model supports thinking mode
+  const modelNotSupportsThinking = notSupportsThinking(llmConfig.model || '');
   const shouldEnableThinking =
-    thinking && thinkingBudget != null && (thinkingBudget > 0 || thinkingBudget === -1);
+    !modelNotSupportsThinking && thinking && thinkingBudget != null && (thinkingBudget > 0 || thinkingBudget === -1);
 
   if (shouldEnableThinking && provider === Providers.GOOGLE) {
     (llmConfig as GoogleClientOptions).thinkingConfig = {

@@ -138,6 +138,18 @@ const userSchema = new Schema<IUser>(
       },
       default: {},
     },
+    school: {
+      type: Number,
+      required: false,
+    },
+    schoolAdmin: {
+      type: Boolean,
+      default: false,
+    },
+    superCredit: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );
